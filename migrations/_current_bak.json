@@ -1,0 +1,238 @@
+{
+    "tables": {
+        "category": {
+            "tableName": "category",
+            "schema": {
+                "category_id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "field": "category_id",
+                    "seqType": "Sequelize.STRING(128)"
+                },
+                "category_label": {
+                    "allowNull": false,
+                    "field": "category_label",
+                    "seqType": "Sequelize.STRING(45)"
+                },
+                "category_description": {
+                    "allowNull": false,
+                    "field": "category_description",
+                    "seqType": "Sequelize.STRING(512)"
+                },
+                "category_nb_max": {
+                    "allowNull": true,
+                    "field": "category_nb_max",
+                    "seqType": "Sequelize.INTEGER(11)"
+                },
+                "category_full": {
+                    "allowNull": true,
+                    "defaultValue": {
+                        "value": "0"
+                    },
+                    "field": "category_full",
+                    "seqType": "Sequelize.INTEGER(4)"
+                },
+                "category_type": {
+                    "allowNull": true,
+                    "field": "category_type",
+                    "seqType": "Sequelize.STRING(15)"
+                },
+                "category_nb_total": {
+                    "allowNull": true,
+                    "field": "category_nb_total",
+                    "seqType": "Sequelize.INTEGER(11)"
+                },
+                "category_price_regular": {
+                    "allowNull": true,
+                    "field": "category_price_regular",
+                    "seqType": "Sequelize.FLOAT"
+                },
+                "category_price_va": {
+                    "allowNull": true,
+                    "field": "category_price_va",
+                    "seqType": "Sequelize.FLOAT"
+                },
+                "updatedAt": {
+                    "allowNull": true,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "createdAt": {
+                    "allowNull": true,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                }
+            },
+            "indexes": []
+        },
+        "participant": {
+            "tableName": "participant",
+            "schema": {
+                "participant_id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "field": "participant_id",
+                    "seqType": "Sequelize.STRING(128)"
+                },
+                "participant_name": {
+                    "allowNull": false,
+                    "field": "participant_name",
+                    "seqType": "Sequelize.STRING(45)"
+                },
+                "participant_surname": {
+                    "allowNull": false,
+                    "field": "participant_surname",
+                    "seqType": "Sequelize.STRING(45)"
+                },
+                "participant_birthdate": {
+                    "allowNull": false,
+                    "field": "participant_birthdate",
+                    "seqType": "Sequelize.DATEONLY"
+                },
+                "participant_team": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "team",
+                        "key": "team_id"
+                    },
+                    "field": "participant_team",
+                    "seqType": "Sequelize.STRING(128)"
+                },
+                "participant_student": {
+                    "allowNull": true,
+                    "defaultValue": {
+                        "value": "0"
+                    },
+                    "field": "participant_student",
+                    "seqType": "Sequelize.INTEGER(4)"
+                },
+                "participant_medical_certificat": {
+                    "allowNull": true,
+                    "field": "participant_medical_certificat",
+                    "seqType": "Sequelize.BLOB"
+                },
+                "participant_medical_certificat_valid": {
+                    "allowNull": true,
+                    "defaultValue": {
+                        "value": "0"
+                    },
+                    "field": "participant_medical_certificat_valid",
+                    "seqType": "Sequelize.INTEGER(4)"
+                },
+                "participant_medical_certificat_file": {
+                    "allowNull": true,
+                    "field": "participant_medical_certificat_file",
+                    "seqType": "Sequelize.STRING(128)"
+                },
+                "participant_payment": {
+                    "allowNull": true,
+                    "defaultValue": {
+                        "value": "0"
+                    },
+                    "field": "participant_payment",
+                    "seqType": "Sequelize.INTEGER(4)"
+                },
+                "participant_tee_shirt_size": {
+                    "allowNull": true,
+                    "field": "participant_tee_shirt_size",
+                    "seqType": "Sequelize.STRING(2)"
+                },
+                "participant_comment": {
+                    "allowNull": true,
+                    "field": "participant_comment",
+                    "seqType": "Sequelize.STRING(512)"
+                },
+                "participant_message": {
+                    "allowNull": true,
+                    "field": "participant_message",
+                    "seqType": "Sequelize.STRING(512)"
+                },
+                "participant_telephone": {
+                    "allowNull": true,
+                    "field": "participant_telephone",
+                    "seqType": "Sequelize.STRING(15)"
+                },
+                "participant_email": {
+                    "allowNull": true,
+                    "field": "participant_email",
+                    "seqType": "Sequelize.STRING(128)"
+                },
+                "createdAt": {
+                    "allowNull": true,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": true,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                }
+            },
+            "indexes": []
+        },
+        "team": {
+            "tableName": "team",
+            "schema": {
+                "team_id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "field": "team_id",
+                    "seqType": "Sequelize.STRING(128)"
+                },
+                "team_manager": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "participant",
+                        "key": "participant_id"
+                    },
+                    "field": "team_manager",
+                    "seqType": "Sequelize.STRING(128)"
+                },
+                "team_name": {
+                    "allowNull": true,
+                    "field": "team_name",
+                    "seqType": "Sequelize.STRING(45)"
+                },
+                "team_password": {
+                    "allowNull": true,
+                    "field": "team_password",
+                    "seqType": "Sequelize.STRING(512)"
+                },
+                "team_category": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "category",
+                        "key": "category_id"
+                    },
+                    "field": "team_category",
+                    "seqType": "Sequelize.STRING(128)"
+                },
+                "team_valid": {
+                    "allowNull": true,
+                    "defaultValue": {
+                        "value": "0"
+                    },
+                    "field": "team_valid",
+                    "seqType": "Sequelize.INTEGER(4)"
+                },
+                "team_salt": {
+                    "allowNull": true,
+                    "field": "team_salt",
+                    "seqType": "Sequelize.STRING(512)"
+                },
+                "updatedAt": {
+                    "allowNull": true,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "createdAt": {
+                    "allowNull": true,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                }
+            },
+            "indexes": []
+        }
+    },
+    "revision": 2
+}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Courses 24h - Admin</title>
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/sb-admin.css" rel="stylesheet">
+    <style>
+      body{
+        line-height: 1em;
+      }
+
+      table {
+        font-family: "Segoe UI", sans-serif;
+        font-size: 0.8rem;
+        table-layout: auto;
+        width: 100%;
+        padding: 5px;
+      }
+
+      table.table-password td {
+        word-wrap: break-word;         /* All browsers since IE 5.5+ */
+        overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+        word-break: break-all;
+        margin: auto;
+        padding: 3px 5px;
+        vertical-align: middle;
+        line-height: 1.3;
+      }
+
+      .navbar-brand{
+        font-family: "Tw Cen MT";
+        font-weight: bold;
+      }
+    </style>
+    <script src="../vendor/jquery/jquery.min.js"></script>
+    <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="../js/script-equipes.js"></script>
+
+  </head>
+  <body>
+    <div class="row">
+      <div class="col-12 p-md-5" >
+        <div id="accordion">
+
+          <% if(locals.categories != undefined){ %>
+          <% locals.categories.forEach((eleme, index) => { %>
+            <div class="card">
+              <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                  <button class="btn btn-link" data-toggle="collapse" data-target="#aa<%= index %>" aria-expanded="true" aria-controls="<%= index %>">
+                    <b><%= eleme['categorie_nom'] %></b> ------- <%= eleme['nb_coureurs'] %> Coureurs | <%= eleme['nb_equipes'] %> Equipes
+                  </button>
+                </h5>
+              </div>
+              <div id="aa<%= index %>" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                  <% if(locals.equipes != undefined){ %>
+                    <% locals.equipes.forEach((elemen, index) => { %>
+                      <% if(elemen['categorie.categorie_nom'] == eleme['categorie_nom']){ %>
+                          <% if(elemen['equipe_valide'] == 0){ %>
+                            <div class="btn btn-primary font-weight-bold nomEQ"><%= elemen['equipe_nom'] %></div>
+                            <div class="d-inline badge-primary mr-5 labelEQ">En cours de validation</div>
+                          <%}else if(elemen['equipe_valide'] == 1){%>
+                            <div class="btn btn-success font-weight-bold nomEQ"><%= elemen['equipe_nom'] %></div>
+                            <div class="d-inline badge-success mr-5 labelEQ">Validée</div>
+                          <%}else if(elemen['equipe_valide'] == 2){%>
+                            <div class="btn btn-danger font-weight-bold nomEQ"><%= elemen['equipe_nom'] %></div>
+                            <div class="d-inline badge-danger mr-5 labelEQ">Rejetée</div>
+                          <% } %>
+                          <div class="d-inline">
+                            <button class="btn btn-sm btn-black" onclick="valider('<%= elemen['equipe_id'] %>')">Valider</button>
+                            <button class="btn btn-sm btn-black" onclick="encours('<%= elemen['equipe_id'] %>')">En cours de validation</button>
+                            <button class="btn btn-sm btn-black" onclick="rejeter('<%= elemen['equipe_id'] %>')">Rejeter</button>
+                            <button class="btn btn-sm btn-light" onclick="supprimer('<%= elemen['equipe_id'] %>')">Supprimer</button>
+                          </div>
+                          <div style="max-width: 100%; overflow: auto;">
+                            <table class="table table-password table-striped p-2 table-sm" id="makeEditable">
+                              <thead>
+                              <tr style="font-size: 10px">
+                                <th class="d-none">ID</th>
+                                <th style="min-width: 120px">Nom</th>
+                                <th style="min-width: 120px">Prénom</th>
+                                <th style="min-width: 200px">Email</th>
+                                <th style="min-width: 100px">Telephone</th>
+                                <th style="min-width: 60px">T-Shirt</th>
+                                <th style="min-width: 120px">Certificat</th>
+                                <th style="min-width: 100px">Date de naissance</th>
+                                <th style="min-width: 70px">VA ?</th>
+                                <th style="min-width: 70px">Prix</th>
+                                <th style="min-width: 70px">Equipe ?</th>
+                                <th style="min-width: 70px">Paiement ?</th>
+                                <th style="min-width: 70px">Certificat ?</th>
+                                <th style="min-width: 200px">Commentaire</th>
+                                <th name="buttons"></th>
+                              </tr>
+                              </thead>
+                              <tbody id="bodyTable">
+                              <% if(locals.coureurs != undefined){ %>
+                                <% locals.coureurs.forEach((element, index) => { %>
+                                  <% if(element['equipe_nom'] == elemen['equipe_nom']){ %>
+                                        <tr>
+                                          <td class="idCOUR" hidden><%= element['coureurs.coureur_id'] %></td>
+                                          <td class="nomCOUR"><%= element['coureurs.coureur_nom'] %></td>
+                                          <td class="prenomCOUR"><%= element['coureurs.coureur_prenom'] %></td>
+                                          <td class="emailCOUR"><%= element['coureurs.coureur_email'] %></td>
+                                          <td class="telephoneCOUR"><%= element['coureurs.coureur_telephone'] %></td>
+                                          <td class="tailleteeshirtCOUR"><%= element['coureurs.coureur_taille_tee_shirt'] %></td>
+                                          <td class="certificatCOUR"><a target="_blank" href="/certificats/<%= element['coureurs.coureur_certificat_fichier'] %>"><%= element['coureurs.coureur_certificat_fichier'] %></a></td>
+                                          <td class="datenaissanceCOUR"><%= element['coureurs.coureur_date_naissance'] %></td>
+                                          <td class="etudiantCOUR"><%= element['coureurs.coureur_etudiant'] %></td>
+                                          <td class="prixCOUR">
+                                            <% if(element['coureurs.coureur_etudiant'] == 1) { %>
+                                            <%= element['categorie.categorie_prix_va'] %>
+                                            <% }else{ %>
+                                            <%= element['categorie.categorie_prix_normal'] %>
+                                            <%}%>
+                                          </td>
+                                          <td class="equipevalideCOUR"><%= element['equipe_valide'] %></td>
+                                          <td class="paiementvalideCOUR"><%= element['coureurs.coureur_paiement'] %></td>
+                                          <td class="certificatvalideCOUR"><%= element['coureurs.coureur_certificat_valide'] %></td>
+                                          <td class="commentaireCOUR"><%= element['coureurs.coureur_commentaire'] %></td>
+                                          <td class="buttonRaw" name="buttons"></td>
+                                        </tr>
+                                  <% } %>
+                                <% }) %>
+                              <% } %>
+                              </tbody>
+                              <tfoot>
+                              </tfoot>
+                            </table>
+                          </div>
+                    <% } %>
+                  <% }) %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+          <% } %>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalConfirmDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Suppression d'un coureur</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Action irréversible !
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btnNO">No</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btnYES">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="modalConfirmDelete2" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Suppression d'une équipe</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Action irréversible !
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btn2NO">No</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btn2YES">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

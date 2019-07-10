@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Courses 24h - Admin</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <!-- Favicone Icon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/img/logos/logo_24h_generique_couleur_cut_50px.ico">
+    <link rel="icon" type="image/png" href="/img/logos/logo_24h_generique_couleur_cut_50px.png">
+    <link rel="apple-touch-icon" href="/img/logos/logo_24h_generique_couleur_cut_50px.png">
+    <style>
+      table{
+        font-size: 12px;
+      }
+    </style>
+    <!-- CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="../css/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link href="../css/ionicons.css" rel="stylesheet" type="text/css" />
+    <link href="../css/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <link href="../css/tablesort.css" rel="stylesheet" type="text/css" />
+    <link href="../css/tablesort2.css" rel="stylesheet" type="text/css" />
+
+    <script src="../js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../js/jquery-3.3.1.js" type="text/javascript"></script>
+    <script src="../js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="../js/dataTables.bootstrap4.min.js" type="text/javascript"></script>
+    <script src="../js/script-admin.js" type="text/javascript"></script>
+
+  </head>
+  <body>
+    <div class="row">
+      <div class="col-12 p-md-5" >
+        <div style="max-width: 100%; overflow: auto;">
+          <table class="table table-password table-striped p-2 table-sm" id="example">
+          <thead>
+          <tr>
+            <th class="d-none">ID</th>
+            <th>Nom Prénom</th>
+            <th>Equipe</th>
+            <th>Catégorie</th>
+            <th>T-shirt</th>
+            <th>Certificat</th>
+            <th>Date de naissance</th>
+            <th>Mail</th>
+            <th>Telephone</th>
+            <th>Prix</th>
+            <th>VA ?</th>
+            <th>€€ ?</th>
+            <th>Certif ?</th>
+            <th name="buttons"></th>
+          </tr>
+          </thead>
+          <tbody>
+          <% if(locals.coureurs != undefined){ %>
+            <% locals.coureurs.forEach((elem, index) => { %>
+          <tr>
+            <td class="d-none"><%= elem['coureurs.coureur_id'] %></td>
+            <td><%= elem['coureurs.coureur_nom'] %> <%= elem['coureurs.coureur_prenom'] %></td>
+            <td><%= elem['equipe_nom'] %></td>
+            <td><%= elem['categorie.categorie_nom'] %></td>
+            <td><%= elem['coureurs.coureur_taille_tee_shirt'] %></td>
+            <td>Certificat</td>
+            <td><%= elem['coureurs.coureur_date_naissance'] %></td>
+            <td><%= elem['coureurs.coureur_email'] %></td>
+            <td><%= elem['coureurs.coureur_telephone'] %></td>
+            <td><%= elem['categorie.categorie_prix_normal'] %></td>
+            <td>
+              <% if (elem['coureurs.coureur_etudiant'] == 1){ %>
+              <span class="badge-success p-1">OK</span>
+              <% }else if (elem['coureurs.coureur_etudiant'] == 0){ %>
+              <span class="badge-danger p-1">Non</span>
+              <% } %>
+            </td>
+            </td>
+            <td>
+              <% if (elem['coureurs.coureur_paiement'] == 1){ %>
+                <span class="badge-success p-1">OK</span>
+              <% }else if (elem['coureurs.coureur_paiement'] == 0){ %>
+                <span class="badge-danger p-1">Non</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (elem['coureurs.coureur_certificat_valide'] == 1){ %>
+              <span class="badge-success p-1">OK</span>
+              <% }else if (elem['coureurs.coureur_certificat_valide'] == 1){ %>
+              <span class="badge-danger p-1">Non</span>
+              <% } %>
+            </td>
+            <td class="buttonRaw" name="buttons"></td>
+          </tr>
+            <% }) %>
+          <% } %>
+          </tbody>
+          <tfoot>
+          </tfoot>
+        </table>
+        </div>
+      </div>
+    </div>
+    <script>
+		$(document).ready(function() {
+			$('#example').DataTable();
+		} );
+    </script>
+  </body>
+</html>
