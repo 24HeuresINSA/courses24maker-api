@@ -58,7 +58,7 @@ router.get('/:id', authenticationUser, function(req, res, next) {
 				res.status(200);
 				res.send(utils.modelToJSON(team));
 			} else {
-				next(apiErrors.TEAM_NOT_FOUND_GET_TEAM, req, res);
+				next(apiErrors.TEAM_NOT_FOUND, req, res);
 			}
 		})
 		.catch( err => {
@@ -129,7 +129,7 @@ router.put('/:id', authenticationUser, function(req, res, next) {
 		.then(team => {
 			// STEP 2 - Check if the team to update exists
 			if (!team) {
-				next(apiErrors.TEAM_NOT_FOUND_GET_TEAM, req, res);
+				next(apiErrors.TEAM_NOT_FOUND, req, res);
 			} else {
 				// STEP 3.1 - Check if the team manager must be updated or not
 				if (teamUpdate.hasOwnProperty('team_manager_id')) {
@@ -179,7 +179,7 @@ router.delete('/:id', authenticationAdmin, function(req, res, next) {
 			if (result > 0) {
 				res.status(204).end();
 			} else {
-				next(apiErrors.TEAM_NOT_FOUND_GET_TEAM, req, res);
+				next(apiErrors.TEAM_NOT_FOUND, req, res);
 			}
 		})
 		.catch(err => {

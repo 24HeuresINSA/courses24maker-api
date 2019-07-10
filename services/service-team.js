@@ -41,10 +41,12 @@ const defaultBodyGetTeams = {
 /* The default body configuration when a request coming for POST /teams */
 const defaultBodyPostTeam = {
 	team: {
+		team_id: null,
 		team_name: null,
 		team_password: null,
 		team_manager_id: null,
-		team_category_id: null
+		team_category_id: null,
+		team_valid: 0
 	},
 	team_manager: {
 		participant_name: null,
@@ -64,8 +66,7 @@ const defaultBodyPostTeam = {
 
 /* The default body configuration when a request coming for PUT /teams */
 const defaultBodyPutTeam = {
-	team: { },
-	team_manager: { }
+	team: { }
 };
 
 /* The default query configuration when a request coming for GET /teams and GET /teams/:id */
@@ -268,7 +269,7 @@ function checkRequestPostTeam (req, res, next) {
 
 	body.team.team_id = uuidv4();
 	body.team.team_valid = 0;
-	
+
 	body.team_manager.participant_id = uuidv4();
 	body.team_manager.participant_payment = service_participant.participantPaymentValidityValueMatch.PAYMENT_NOT_RECEIVED.value;
 	body.team_manager.participant_medical_certificat_valid = service_participant.participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.value;
@@ -276,7 +277,7 @@ function checkRequestPostTeam (req, res, next) {
 	return {params: null, query: null, body: body};
 }
 
-/* The body check for the request POST /teams */
+/* The body check for the request PUT /teams/:id */
 function checkRequestPutTeam (req, res, next) {
 	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
 	var params = {};
@@ -392,12 +393,12 @@ function getDatabaseParameterPostTeamCreateManager (params, query, body){
 	return body.team_manager;
 }
 
-/* The database SQL request parameters for the request POST /teams */
+/* The database SQL request parameters for the request PUT /teams */
 function getDatabaseParameterPutTeamUpdateTeam (params, query, body){
 	return body.team;
 }
 
-/* The database SQL request parameters for the request GET /teams/:id */
+/* The database SQL request parameters for the request DELETE /teams/:id */
 function getDatabaseParameterDeleteTeam (params, query, body){
 	var parameters = {
 		where: { team_id: params.id },

@@ -29,8 +29,19 @@ const apiErrors = {
 	PARTICIPANT_ERROR_BAD_REQUEST_PUT_TEAM: new ApiErrorObject(400, "PARTICIPANT_ERROR_BAD_REQUEST_PUT_TEAM", "INTERNAL_ERROR", { "fr": "Impossible de mettre à jour le chef d'équipe. Il appartient à une autre équipe", "en": "Impossible to update the team manager. He is member of another team."}),
 	PARTICIPANT_ERROR_INTERNAL_NEW_POST_TEAM: new ApiErrorObject(500, "PARTICIPANT_ERROR_INTERNAL_NEW_POST_TEAM", "BAD_REQUEST", { "fr": "Problème pour créer le chef d'équipe", "en": "Problem to create the team manager"}),
 	PARTICIPANT_ERROR_INTERNAL_NEW_PUT_TEAM: new ApiErrorObject(500, "PARTICIPANT_ERROR_INTERNAL_NEW_POST_TEAM", "INTERNAL_ERROR", { "fr": "Problème pour mettre à jour le chef d'équipe", "en": "Problem to update the team manager"}),
-	TEAM_NOT_FOUND_GET_TEAM: new ApiErrorObject(404, "TEAM_NOT_FOUND_GET_TEAM", "NOT_FOUND", { "fr": "L'équipe n'existe pas", "en": "The team does not exist"}),
-	CATEGORY_NOT_FOUND_POST_TEAM: new ApiErrorObject(404, "CATEGORY_NOT_FOUND_POST_TEAM", "NOT_FOUND", { "fr": "La catégorie n'existe pas", "en": "The category does not exist"}),
+	TEAM_NOT_FOUND: new ApiErrorObject(404, "TEAM_NOT_FOUND", "NOT_FOUND", { "fr": "L'équipe n'existe pas", "en": "The team does not exist"}),
+
+	CATEGORY_ERROR_INTERNAL_GET_CATEGORIES: new ApiErrorObject(500, "CATEGORY_ERROR_INTERNAL_GET_CATEGORIES", "INTERNAL_ERROR", { "fr": "Problème pour retrouver toutes les catégories", "en": "Problem to retrieve all the categories"}),
+	CATEGORY_NOT_FOUND: new ApiErrorObject(404, "CATEGORY_NOT_FOUND", "NOT_FOUND", { "fr": "La catégorie n'existe pas", "en": "The category does not exist"}),
+	CATEGORY_NOT_FOUND_GET_CATEGORIES: new ApiErrorObject(404, "CATEGORY_NOT_FOUND_GET_CATEGORIES", "NOT_FOUND", { "fr": "Aucune catégorie trouvée", "en": "No category found"}),
+	CATEGORY_ERROR_INTERNAL_GET_CATEGORY: new ApiErrorObject(500, "CATEGORY_ERROR_INTERNAL_GET_CATEGORY", "INTERNAL_ERROR", { "fr": "Problème pour retrouver la catégorie", "en": "Problem to retrieve the category"}),
+	CATEGORY_ERROR_INTERNAL_CHECK_CATEGORY: new ApiErrorObject(500, "CATEGORY_ERROR_INTERNAL_CHECK_CATEGORY", "INTERNAL_ERROR", { "fr": "Problème pour vérifier l'existence de la catégorie", "en": "Problem to check if the category already exists"}),
+	CATEGORY_ERROR_INTERNAL_POST_CATEGORY: new ApiErrorObject(500, "CATEGORY_ERROR_INTERNAL_POST_CATEGORY", "INTERNAL_ERROR", { "fr": "Problème pour créer la catégorie", "en": "Problem to create the category"}),
+	CATEGORY_ERROR_INTERNAL_PUT_CATEGORY: new ApiErrorObject(500, "CATEGORY_ERROR_INTERNAL_PUT_CATEGORY", "INTERNAL_ERROR", { "fr": "Problème pour mettre à jour la catégorie", "en": "Problem to update the category"}),
+	CATEGORY_ERROR_INTERNAL_DELETE_CATEGORY: new ApiErrorObject(500, "CATEGORY_ERROR_INTERNAL_DELETE_CATEGORY", "INTERNAL_ERROR", { "fr": "Problème pour supprimer la catégorie", "en": "Problem to remove the category"}),
+	CATEGORY_ALREADY_EXISTS: new ApiErrorObject(409, "CATEGORY_ALREADY_EXISTS", "CONFLICT", { "fr": "Une catégorie avec le même label existe déjà", "en": "A team with the same label already exists"}),
+
+
 	TEAM_ALREADY_EXISTS_POST_TEAM: new ApiErrorObject(409, "TEAM_ALREADY_EXISTS_POST_TEAM", "CONFLICT", { "fr": "L'équipe existe déjà", "en": "The team already exists"}),
 	GENERAL_ERROR_REQUEST_FORMAT_ERROR: new ApiErrorObject(400, "GENERAL_ERROR_REQUEST_FORMAT_ERROR", "BAD REQUEST", { "fr": "La requête est mal formée", "en": "The request is malformed"})
 };
