@@ -23,6 +23,7 @@
     "passport-local": "^1.0.0",
     "sequelize": "^4.44.2",
     "sequelize-auto": "^0.4.29",
-    "sha256": "^0.2.0"
+    "sha256": "^0.2.0",
+    "synchronized-promise": "^0.1.0"
   }
 }

@@ -2,15 +2,18 @@
 
 // Middlewares and modules
 var sequelize = require('../config/config-database').sequelize;
+var uuidv4 = require('uuid/v4');
 const Op = sequelize.Op;
 
 // Configuration files
 const config_authentication = require('../config/config-authentication.json');
 
 // Service files
-var service_errors = require('../services/service-errors');
-var apiErrors = service_errors.apiErrors;
-var utils = require('../services/utils');
+const service_authentication = require('../services/service-authentication');
+const service_errors = require('../services/service-errors');
+const service_participant = require('../services/service-participant');
+const apiErrors = service_errors.apiErrors;
+const utils = require('../services/utils');
 
 // Models
 var Team = sequelize.import('../models/team');
@@ -35,6 +38,36 @@ const defaultBodyGetTeams = {
 	}
 };
 
+/* The default body configuration when a request coming for POST /teams */
+const defaultBodyPostTeam = {
+	team: {
+		team_name: null,
+		team_password: null,
+		team_manager_id: null,
+		team_category_id: null
+	},
+	team_manager: {
+		participant_name: null,
+		participant_surname: null,
+		participant_birthdate: null,
+		participant_student: null,
+		participant_medical_certificat: null,
+		participant_medical_certificat_file: null,
+		participant_medical_certificat_valid: 0,
+		participant_payment: 0,
+		participant_tee_shirt_size: null,
+		participant_comment: null,
+		participant_telephone: null,
+		participant_email: null
+	}
+};
+
+/* The default body configuration when a request coming for PUT /teams */
+const defaultBodyPutTeam = {
+	team: { },
+	team_manager: { }
+};
+
 /* The default query configuration when a request coming for GET /teams and GET /teams/:id */
 const defaultQueryGetTeams = {
 	manager: true,
@@ -44,26 +77,19 @@ const defaultQueryGetTeams = {
 
 // ---------- FUNCTIONS ----------
 
-/* The body check for the request GET /teams and GET /teams/:id */
-function checkQueryGetTeams (req, res, next) {
+/* The body check for the request GET /teams */
+function checkRequestGetTeam (req, res, next) {
 	var query = Object.assign({}, defaultQueryGetTeams);
+	var body = Object.assign({}, defaultBodyGetTeams);
+	var categoriesIdPromise = Category.findAll({ raw: true, attributes: ["category_id"] });
+
 	try {
 		if (req.hasOwnProperty('query')) {
 			req.query.hasOwnProperty('manager') ? (['true', 'false'].includes(req.query.manager) ? query.manager = JSON.parse(req.query.manager) : null) : null;
 			req.query.hasOwnProperty('category') ? (['true', 'false'].includes(req.query.category) ? query.category = JSON.parse(req.query.category) : null) : null;
 			req.query.hasOwnProperty('participants') ? (['true', 'false'].includes(req.query.participants) ? query.participants = JSON.parse(req.query.participants) : null) : null;
 		}
-	} catch (err) {
-		next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_GET_ALL, err), req, res);
-	}
-	return query;
-}
 
-/* The body check for the request GET /team */
-function checkBodyGetTeams (req, res, next) {
-	var body = Object.assign({}, defaultBodyGetTeams);
-	var categoriesIdPromise = Category.findAll({ raw: true, attributes: ["category_id"] });
-	try {
 		if (req.hasOwnProperty('body')) {
 			if (req.body.hasOwnProperty('filter')) {
 				if (req.body.filter.hasOwnProperty('team_valid') && req.body.filter.team_valid.length > 0) {
@@ -74,7 +100,7 @@ function checkBodyGetTeams (req, res, next) {
 						}
 					});
 				}
-				if (req.body.filter.hasOwnProperty('category_id') && req.body.filter.team_valid.length > 0) {
+				if (req.body.filter.hasOwnProperty('category_id') && req.body.filter.category_id.length > 0) {
 					var categoriesId = [];
 					body.filter.category_id = [];
 					categoriesIdPromise
@@ -82,7 +108,7 @@ function checkBodyGetTeams (req, res, next) {
 							categories.forEach(val => {
 								categoriesId.push(val.category_id);
 							});
-							req.body.filter.team_valid.forEach((value, index) => {
+							req.body.filter.team_category_id.forEach((value, index) => {
 								if (value.includes(categoriesId)) {
 									body.filter.category_id.push(value);
 								}
@@ -97,10 +123,224 @@ function checkBodyGetTeams (req, res, next) {
 	} catch (err) {
 		next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_GET_ALL, err), req, res);
 	}
-	return body;
+	return {params: null, query: query, body: body};
 }
 
-/* The database SQL request parameters for the request GET /team */
+/* The body check for the request GET /teams/:id */
+function checkRequestGetTeams (req, res, next) {
+	var params = {};
+	var query = Object.assign({}, defaultQueryGetTeams);
+	try {
+		if (req.params.hasOwnProperty('id')) {
+			params.id = req.params.id;
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+
+		if (req.hasOwnProperty('query')) {
+			req.query.hasOwnProperty('manager') ? (['true', 'false'].includes(req.query.manager) ? query.manager = JSON.parse(req.query.manager) : null) : null;
+			req.query.hasOwnProperty('category') ? (['true', 'false'].includes(req.query.category) ? query.category = JSON.parse(req.query.category) : null) : null;
+			req.query.hasOwnProperty('participants') ? (['true', 'false'].includes(req.query.participants) ? query.participants = JSON.parse(req.query.participants) : null) : null;
+		}
+	} catch (err) {
+		next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_GET_ALL, err), req, res);
+	}
+	return {params: params, query: query, body: null};
+}
+
+/* The body check for the request POST /teams */
+function checkRequestPostTeam (req, res, next) {
+	var body = Object.assign({}, defaultBodyPostTeam);
+
+	if (req.body.hasOwnProperty('team')) {
+		if (req.body.team.hasOwnProperty('team_name')) {
+			if (req.body.team.team_name) {
+				body.team.team_name = req.body.team.team_name;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+		if (req.body.team.hasOwnProperty('team_password')) {
+			if (req.body.team.team_password) {
+				body.team.team_salt = uuidv4();
+				body.team.team_password = service_authentication.hashPassword(req.body.team.team_password, body.team.team_salt);
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+		if (req.body.team.hasOwnProperty('team_category_id')) {
+			body.team.team_category_id = req.body.team.team_category_id;
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+	} else {
+		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+	}
+
+	if (req.body.hasOwnProperty('team_manager')) {
+		if (req.body.team_manager.hasOwnProperty('participant_name')) {
+			if (req.body.team_manager.participant_name) {
+				body.team_manager.participant_name = req.body.team_manager.participant_name;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_surname')) {
+			if (req.body.team_manager.participant_surname) {
+				body.team_manager.participant_surname = req.body.team_manager.participant_surname;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_birthdate')) {
+			if (req.body.team_manager.participant_birthdate) {
+				body.team_manager.participant_birthdate = req.body.team_manager.participant_birthdate;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_telephone')) {
+			if (req.body.team_manager.participant_telephone) {
+				body.team_manager.participant_telephone = req.body.team_manager.participant_telephone;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_email')) {
+			if (req.body.team_manager.participant_email) {
+				body.team_manager.participant_email = req.body.team_manager.participant_email;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_student')) {
+			if (req.body.team_manager.participant_student) {
+				body.team_manager.participant_student = req.body.team_manager.participant_student
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_medical_certificat')) {
+			if (req.body.team_manager.participant_medical_certificat) {
+				body.team_manager.participant_medical_certificat = req.body.team_manager.participant_medical_certificat
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_medical_certificat_file')) {
+			if (req.body.team_manager.participant_medical_certificat_file) {
+				body.team_manager.participant_medical_certificat_file = req.body.team_manager.participant_medical_certificat_file
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_tee_shirt_size')) {
+			if (req.body.team_manager.participant_tee_shirt_size) {
+				body.team_manager.participant_tee_shirt_size = req.body.team_manager.participant_tee_shirt_size
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+		if (req.body.team_manager.hasOwnProperty('participant_comment')) {
+			if (req.body.team_manager.participant_comment) {
+				body.team_manager.participant_comment = req.body.team_manager.participant_comment
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+	} else {
+		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+	}
+
+	body.team.team_id = uuidv4();
+	body.team.team_valid = 0;
+	
+	body.team_manager.participant_id = uuidv4();
+	body.team_manager.participant_payment = service_participant.participantPaymentValidityValueMatch.PAYMENT_NOT_RECEIVED.value;
+	body.team_manager.participant_medical_certificat_valid = service_participant.participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.value;
+
+	return {params: null, query: null, body: body};
+}
+
+/* The body check for the request POST /teams */
+function checkRequestPutTeam (req, res, next) {
+	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	var params = {};
+	var body = Object.assign({}, defaultBodyPutTeam);
+
+	if (req.params.hasOwnProperty('id')) {
+		params.id = req.params.id;
+	} else {
+		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+	}
+
+	if (req.body.hasOwnProperty('team')) {
+		if (req.body.team.hasOwnProperty('team_name')) {
+			if (req.body.team.team_name) {
+				body.team.team_name = req.body.team.team_name;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+		if (req.body.team.hasOwnProperty('team_password')) {
+			if (req.body.team.team_password) {
+				body.team.team_salt = uuidv4();
+				body.team.team_password = service_authentication.hashPassword(req.body.team.team_password, body.team.team_salt);
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+		if (req.body.team.hasOwnProperty('team_category_id')) {
+			if (req.body.team.team_category_id) {
+				body.team.team_category_id = req.body.team.team_category_id;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+		if (req.body.team.hasOwnProperty('team_manager_id')) {
+			if (req.body.team.team_manager_id) {
+				body.team.team_manager_id = req.body.team.team_manager_id;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+		if (req.body.team.hasOwnProperty('team_valid') && isAdminScope) {
+			if (req.body.team.team_valid) {
+				body.team.team_valid = req.body.team.team_valid;
+			} else {
+				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
+	}
+
+	return {params: params, query: null, body: body};
+}
+
+/* The body check for the request DELETE /teams/:id */
+function checkRequestDeleteTeams (req, res, next) {
+	var params = {};
+	if (!req.params.hasOwnProperty('id')) {
+		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+	}
+	params.id = req.params.id
+	return {params: params, query: null, body: null};
+}
+
+/* The database SQL request parameters for the request GET /teams */
 function getDatabaseParameterGetTeams (params, query, body){
 	var parameters = {
 		where: {},
@@ -121,7 +361,7 @@ function getDatabaseParameterGetTeams (params, query, body){
 	return parameters;
 }
 
-/* The database SQL request parameters for the request GET /team */
+/* The database SQL request parameters for the request GET /teams/:id */
 function getDatabaseParameterGetTeam (params, query, body){
 	var parameters = {
 		where: { team_id: params.id },
@@ -142,20 +382,48 @@ function getDatabaseParameterGetTeam (params, query, body){
 	return parameters;
 }
 
+/* The database SQL request parameters for the request POST /teams */
+function getDatabaseParameterPostTeamCreateTeam (params, query, body){
+	return body.team;
+}
+
+/* The database SQL request parameters for the request POST /teams */
+function getDatabaseParameterPostTeamCreateManager (params, query, body){
+	return body.team_manager;
+}
+
+/* The database SQL request parameters for the request POST /teams */
+function getDatabaseParameterPutTeamUpdateTeam (params, query, body){
+	return body.team;
+}
+
+/* The database SQL request parameters for the request GET /teams/:id */
+function getDatabaseParameterDeleteTeam (params, query, body){
+	var parameters = {
+		where: { team_id: params.id },
+	};
+	return parameters;
+}
+
 /* To check if the user has the rights to access to a ressource */
-function isUserMatchToTheId(req, res, next) {
+function checkIfTheUserMatchToTheId(req, res, next) {
 	if (req.user.scope == config_authentication["user-jwt-scope"] && req.user.team.team_id != req.params.id) {
-		return false;
-	} else {
-		return true;
+		return next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
 	}
 };
 
 
 module.exports = {
-	checkQueryGetTeams: checkQueryGetTeams,
+	checkRequestGetTeams: checkRequestGetTeams,
 	getDatabaseParameterGetTeams: getDatabaseParameterGetTeams,
-	checkBodyGetTeams: checkBodyGetTeams,
+	checkRequestGetTeam: checkRequestGetTeam,
 	getDatabaseParameterGetTeam: getDatabaseParameterGetTeam,
-	isUserMatchToTheId: isUserMatchToTheId
+	checkRequestPostTeam: checkRequestPostTeam,
+	getDatabaseParameterPostTeamCreateTeam: getDatabaseParameterPostTeamCreateTeam,
+	getDatabaseParameterPostTeamCreateManager: getDatabaseParameterPostTeamCreateManager,
+	checkRequestPutTeam: checkRequestPutTeam,
+	getDatabaseParameterPutTeamUpdateTeam: getDatabaseParameterPutTeamUpdateTeam,
+	checkRequestDeleteTeams: checkRequestDeleteTeams,
+	getDatabaseParameterDeleteTeam: getDatabaseParameterDeleteTeam,
+	checkIfTheUserMatchToTheId: checkIfTheUserMatchToTheId
 };
