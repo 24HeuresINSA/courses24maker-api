@@ -9,202 +9,149 @@ const fs = require('fs');
 var sequelize = require('../config/config-database').sequelize;
 
 // Configuration files
+var config_authentication = require('../config/config-authentication.json');
 const {authenticationAdmin} = require("../config/config-authentication");
 const {authenticationUser} = require("../config/config-authentication");
 
 // Service files
+var service_participant = require('../services/service-participant');
 var service_errors = require('../services/service-errors');
 var apiErrors = service_errors.apiErrors;
+var utils = require('../services/utils');
 
 // Models
 var Category = sequelize.import('../models/category');
 var Team = sequelize.import('../models/team');
 var Participant = sequelize.import('../models/participant');
-
+Participant.belongsTo(Team, {as: 'participant_team', foreignKey: 'participant_team_id', targetKey:'team_id'});
 
 // ---------- ROUTES ----------
 
-router.get('/all/all', function(req, res, next) {
+router.get('/', authenticationAdmin, function(req, res, next) {
+	const request = service_participant.checkRequestGetParticipants(req, res, next);
+	var databaseRequest = service_participant.getDatabaseParameterGetParticipants(request.params, request.query, request.body);
 
-	Team.findAll({ raw: true, include: [{model: Participant},{model: Category}], order:[['team_nom','DESC']]})
+	Participant.findAll(databaseRequest)
 		.then( participant => {
 			if (participant) {
 				res.status(200);
 				res.send(participant);
 			} else {
-				res.status(202);
-				res.send({
-					"error": "NotFound",
-					"code": 404,
-					"message": "Aucun participant pour cette équipe"
-				});
+				next(apiErrors.PARTICIPANTS_NOT_FOUND, req, res);
 			}
 		})
 		.catch( err => {
-			res.status(500);
-			res.send({
-				"error": "InternalServerError",
-				"code": 500,
-				"message": "Problem pour trouver les participants de l'équipe : "+err
-			});
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANTS, err), req, res);
 		});
 
 });
 
-router.get('/all/team/:id', function(req, res, next) {
+router.get('/team/:id', authenticationUser, function(req, res, next) {
+	const request = service_participant.checkRequestGetParticipantsTeam(req, res, next);
+	var databaseRequest = service_participant.getDatabaseParameterGetParticipantsTeam(request.params, request.query, request.body);
 
-	Participant.findAll({ raw: true, where: { participant_team: req.params.id } })
-		.then( participant => {
-			if (participant) {
+	Participant.findAll(databaseRequest)
+		.then(participants => {
+			if (participants) {
 				res.status(200);
-				res.send(participant);
+				res.send(utils.modelToJSON(participants));
 			} else {
-				res.status(202);
-				res.send({
-					"error": "NotFound",
-					"code": 404,
-					"message": "Aucun participant pour cette équipe"
-				});
+				next(apiErrors.PARTICIPANTS_NOT_FOUND, req, res);
 			}
 		})
 		.catch( err => {
-			res.status(500);
-			res.send({
-				"error": "InternalServerError",
-				"code": 500,
-				"message": "Problem pour trouver les participants de l'équipe : "+err
-			});
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANTS, err), res, res);
 		});
-
 });
 
-router.get('/:id', function(req, res, next) {
+router.get('/:id', authenticationUser, function(req, res, next) {
+	var isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	var isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	const request = service_participant.checkRequestGetParticipant(req, res, next);
+	var databaseParameters = service_participant.getDatabaseParameterGetParticipant(request.params, request.query, request.body);
 
-	Participant.findOne({ raw: true, where: { participant_id: req.params.id } })
-		.then( participant => {
+	Participant.findOne(databaseParameters)
+		.then(participant => {
 			if (participant) {
-				res.status(200);
-				res.send(participant);
+				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
+					res.status(200);
+					res.send(utils.modelToJSON(participant));
+				} else {
+					next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
+				}
 			} else {
-				res.status(202);
-				res.send({
-					"error": "NotFound",
-					"code": 404,
-					"message": "Le participant n'existe pas"
-				});
+				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
 			}
 		})
 		.catch( err => {
-			res.status(500);
-			res.send({
-				"error": "InternalServerError",
-				"code": 500,
-				"message": "Probleme pour mettre à jour l'équipe : "+err
-			});
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT, err), req, res);;
 		});
 
 });
 
-router.post('/', function(req, res, next) {
+router.post('/', authenticationUser, function(req, res, next) {
+	const request = service_participant.checkRequestPostParticipant(req, res, next);
+	var databaseParameters = service_participant.getDatabaseParameterPostParticipant(request.params, request.query, request.body);
 
 	Participant.findOne({ where: {
-			participant_nom: req.body.participant.participant_nom,
-			participant_prenom: req.body.participant.participant_prenom,
-			participant_date_naissance: req.body.participant.participant_date_naissance,
+			participant_name: databaseParameters.participant_name,
+			participant_surname: databaseParameters.participant_surname,
+			participant_birthdate: databaseParameters.participant_birthdate,
 		}})
-		.then( result => {
-			//If raw does not exist yet
-			if(result == null){
-				//Save the new role
-				var participantJSON = req.body.participant;
-				participantJSON.participant_id =  uuidv4();
-				participantJSON.participant_certificat_valide = 0;
-				participantJSON.participant_paiement = 0;
-
-				Participant.create(participantJSON)
-					.then( result2 => {
-						res.status(201).end();
+		.then(participant => {
+			if(!participant){
+				Participant.create(databaseParameters)
+					.then(participant2 => {
+						res.status(201);
+						res.send({
+							"participant_id" : participant2.get("participant_id")
+						});
 					})
 					.catch( err =>{
-						res.status(500);
-						res.send({
-							"error": "InternalServerError",
-							"code": 500,
-							"message": "Création de le participant impossible : "+err
-						});
+						next(service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_POST_PARTICIPANT, err), req, res);
 					});
-				//If role exists yet
 			}else{
-				res.status(202);
-				res.send({
-					"error": "ParticipantAlreadyExist",
-					"code": 409,
-					"message": "Le participant existe déjà"
-				});
+				next(apiErrors.PARTICIPANT_ALREADY_EXISTS, req, res);
 			}
 		})
 		.catch( err =>{
-			res.send({
-				"error": "InternalServerError",
-				"code": 500,
-				"message": "Probleme pour vérifier l'existence de le participant : "+err.message
-			});
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT, err), req, res);
 		});
-
 });
 
-router.put('/:id', function(req, res, next) {
+router.put('/:id', authenticationUser, function(req, res, next) {
+	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	const request = service_participant.checkRequestPutParticipant(req, res, next);
+	var databaseParameters = service_participant.getDatabaseParameterPutParticipant(request.params, request.query, request.body);
 
-	if(req.is('application/json')){
-
-		Participant.findOne({ where: {
-				participant_id : req.params.id
-			} })
-			.then( result =>{
-
-				if (result) {
-
-					result.update(req.body.participant)
-						.then( result2 => {
+	// STEP 1 - Retrieve the participant to update
+	Participant.findOne({ where: { participant_id: request.params.id} })
+		.then(participant => {
+			// STEP 2 - Check if the participant to update exists
+			if (!participant) {
+				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
+			} else {
+				// STEP 3 - Check if the participant can be update by the user or not
+				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
+					participant.update(databaseParameters)
+						.then(participant2 => {
 							res.status(204).end();
-						}).catch( err => {
-						res.status(500);
-						res.send({
-							"error": "InternalServerError",
-							"code": 500,
-							"message": "Problem pour mettre à jour le participant : "+err
+						})
+						.catch( err =>{
+							next(service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT, err), req, res);
 						});
-					});
-
 				} else {
-					res.status(202);
-					res.send({
-						"error": "NotFound",
-						"code": 404,
-						"message": "Le participant n'existe pas"
-					});
+					next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
 				}
-			})
-			.catch( err =>{
-				res.send({
-					"error": "InternalServerError",
-					"code": 500,
-					"message": "Probleme pour vérifier l'existence de le participant"+err
-				});
-			});
-
-	}else{
-		res.status(406);
-		res.send({
-			"error": "BadContentType",
-			"code": 406,
-			"message": "Content-type received: "+req.get('Content-Type')+". Content-type required : application/json"
+			}
+		})
+		.catch( err =>{
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT, err), req, res);
 		});
-	}
-
 });
 
-router.put('/certificat/:id', function(req, res, next) {
+router.put('/certificat/:id', authenticationUser, function(req, res, next) {
 
 	if(req.is('application/json')){
 
@@ -267,33 +214,40 @@ router.put('/certificat/:id', function(req, res, next) {
 
 });
 
-router.delete('/:id', function(req, res, next) {
+router.delete('/:id', authenticationUser, function(req, res, next) {
+	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	const request = service_participant.checkRequestDeleteParticipant(req, res, next);
+	var parameters = service_participant.getDatabaseParameterDeleteParticipant(request.params, request.query, request.body);
 
-		Participant.destroy({
-			where: {
-				participant_id: req.params.id,
+	// STEP 1 - Retrieve the participant and check if he is in the same team as the user
+	Participant.findOne({ where: {participant_id: request.params.id} })
+		.then(participant => {
+			if (!participant) {
+				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
+			} else {
+				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
+					// STEP 2 - If the participant is in the same team, it can be removed
+					Participant.destroy(parameters)
+						.then(result => {
+							if (result > 0) {
+								res.status(204).end();
+							} else {
+								next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
+							}
+						})
+						.catch(err => {
+							next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_DELETE_PARTICIPANT, err), req, res);
+						});
+				} else {
+					next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
+				}
 			}
 		})
-			.then(result => {
-				if (result > 0) {
-					res.status(204).end();
-				} else {
-					res.status(202);
-					res.send({
-						"error": "NotFound",
-						"code": 404,
-						"message": "Le participant n'existe pas"
-					});
-				}
-			})
-			.catch(err => {
-				res.status(500);
-				res.send({
-					"error": "InternalServerError",
-					"code": 500,
-					"message": "Probleme pour supprimer le participant : " + err.message
-				});
-			});
+		.catch(err => {
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT, err), req, res);
+		});
+
 
 });
 

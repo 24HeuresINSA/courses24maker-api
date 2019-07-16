@@ -76,7 +76,7 @@ router.post('/register', function(req, res, next) {
 	Team.findOne({ where: { team_name: req.body.team.team_name } })
 		.then( team => {
 			if (team) {
-				next(apiErrors.TEAM_ALREADY_EXISTS_POST_TEAM, req, res);
+				next(apiErrors.TEAM_ALREADY_EXISTS, req, res);
 			} else {
 				Team.create(parametersCreateTeam)
 					.then(team => {
@@ -94,13 +94,13 @@ router.post('/register', function(req, res, next) {
 										} else {
 											team.destroy({force: true});
 											participant.destroy({force: true});
-											next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_NEW_POST_TEAM, err), req, res);
+											next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_POST_TEAM, err), req, res);
 										}
 									})
 									.catch(err =>{
 										team.destroy({force: true});
 										participant.destroy({force: true});
-										next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_NEW_POST_TEAM, err), req, res);
+										next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_POST_TEAM, err), req, res);
 									});
 							})
 							.catch(err => {
@@ -109,12 +109,12 @@ router.post('/register', function(req, res, next) {
 							});
 					})
 					.catch(err => {
-						next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_NEW_POST_TEAM, err), req, res);
+						next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_POST_TEAM, err), req, res);
 					});
 			}
 		})
 		.catch( err => {
-			next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_CHECK_POST_TEAM, err), req, res)
+			next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_CHECK_TEAM, err), req, res)
 		});
 });
 

@@ -76,10 +76,11 @@ const defaultQueryGetTeams = {
 	participants: false
 };
 
+
 // ---------- FUNCTIONS ----------
 
 /* The body check for the request GET /teams */
-function checkRequestGetTeam (req, res, next) {
+function checkRequestGetTeams (req, res, next) {
 	var query = Object.assign({}, defaultQueryGetTeams);
 	var body = Object.assign({}, defaultBodyGetTeams);
 	var categoriesIdPromise = Category.findAll({ raw: true, attributes: ["category_id"] });
@@ -128,14 +129,14 @@ function checkRequestGetTeam (req, res, next) {
 }
 
 /* The body check for the request GET /teams/:id */
-function checkRequestGetTeams (req, res, next) {
+function checkRequestGetTeam (req, res, next) {
 	var params = {};
 	var query = Object.assign({}, defaultQueryGetTeams);
 	try {
 		if (req.params.hasOwnProperty('id')) {
 			params.id = req.params.id;
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 
 		if (req.hasOwnProperty('query')) {
@@ -158,28 +159,28 @@ function checkRequestPostTeam (req, res, next) {
 			if (req.body.team.team_name) {
 				body.team.team_name = req.body.team.team_name;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.team.hasOwnProperty('team_password')) {
 			if (req.body.team.team_password) {
 				body.team.team_salt = uuidv4();
 				body.team.team_password = service_authentication.hashPassword(req.body.team.team_password, body.team.team_salt);
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.team.hasOwnProperty('team_category_id')) {
 			body.team.team_category_id = req.body.team.team_category_id;
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 	} else {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 
 	if (req.body.hasOwnProperty('team_manager')) {
@@ -187,84 +188,84 @@ function checkRequestPostTeam (req, res, next) {
 			if (req.body.team_manager.participant_name) {
 				body.team_manager.participant_name = req.body.team_manager.participant_name;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_surname')) {
 			if (req.body.team_manager.participant_surname) {
 				body.team_manager.participant_surname = req.body.team_manager.participant_surname;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_birthdate')) {
 			if (req.body.team_manager.participant_birthdate) {
 				body.team_manager.participant_birthdate = req.body.team_manager.participant_birthdate;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_telephone')) {
 			if (req.body.team_manager.participant_telephone) {
 				body.team_manager.participant_telephone = req.body.team_manager.participant_telephone;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_email')) {
 			if (req.body.team_manager.participant_email) {
 				body.team_manager.participant_email = req.body.team_manager.participant_email;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_student')) {
 			if (req.body.team_manager.participant_student) {
 				body.team_manager.participant_student = req.body.team_manager.participant_student
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_medical_certificat')) {
 			if (req.body.team_manager.participant_medical_certificat) {
 				body.team_manager.participant_medical_certificat = req.body.team_manager.participant_medical_certificat
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_medical_certificat_file')) {
 			if (req.body.team_manager.participant_medical_certificat_file) {
 				body.team_manager.participant_medical_certificat_file = req.body.team_manager.participant_medical_certificat_file
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_tee_shirt_size')) {
 			if (req.body.team_manager.participant_tee_shirt_size) {
 				body.team_manager.participant_tee_shirt_size = req.body.team_manager.participant_tee_shirt_size
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.team_manager.hasOwnProperty('participant_comment')) {
 			if (req.body.team_manager.participant_comment) {
 				body.team_manager.participant_comment = req.body.team_manager.participant_comment
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 	} else {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 
 	body.team.team_id = uuidv4();
@@ -286,7 +287,7 @@ function checkRequestPutTeam (req, res, next) {
 	if (req.params.hasOwnProperty('id')) {
 		params.id = req.params.id;
 	} else {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 
 	if (req.body.hasOwnProperty('team')) {
@@ -294,7 +295,7 @@ function checkRequestPutTeam (req, res, next) {
 			if (req.body.team.team_name) {
 				body.team.team_name = req.body.team.team_name;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.team.hasOwnProperty('team_password')) {
@@ -302,28 +303,28 @@ function checkRequestPutTeam (req, res, next) {
 				body.team.team_salt = uuidv4();
 				body.team.team_password = service_authentication.hashPassword(req.body.team.team_password, body.team.team_salt);
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.team.hasOwnProperty('team_category_id')) {
 			if (req.body.team.team_category_id) {
 				body.team.team_category_id = req.body.team.team_category_id;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.team.hasOwnProperty('team_manager_id')) {
 			if (req.body.team.team_manager_id) {
 				body.team.team_manager_id = req.body.team.team_manager_id;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.team.hasOwnProperty('team_valid') && isAdminScope) {
 			if (req.body.team.team_valid) {
 				body.team.team_valid = req.body.team.team_valid;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 	}
@@ -335,7 +336,7 @@ function checkRequestPutTeam (req, res, next) {
 function checkRequestDeleteTeams (req, res, next) {
 	var params = {};
 	if (!req.params.hasOwnProperty('id')) {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 	params.id = req.params.id
 	return {params: params, query: null, body: null};

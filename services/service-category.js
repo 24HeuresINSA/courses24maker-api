@@ -57,7 +57,7 @@ function checkRequestGetCategory (req, res, next) {
 	if (req.params.hasOwnProperty('id')) {
 		params.id = req.params.id;
 	} else {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 
 	return {params: params, query: null, body: null};
@@ -72,68 +72,68 @@ function checkRequestPostCategory (req, res, next) {
 			if (req.body.category.category_label) {
 				body.category.category_label = req.body.category.category_label;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.category.hasOwnProperty('category_price_regular')) {
 			if (req.body.category.category_price_regular) {
 				body.category.category_price_regular =  req.body.category.category_price_regular;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.category.hasOwnProperty('category_price_va')) {
 			if (req.body.category.category_price_va) {
 				body.category.category_price_va = req.body.category.category_price_va;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.category.hasOwnProperty('category_nb_max')) {
 			if (req.body.category.category_nb_max) {
 				body.category.category_nb_max = req.body.category.category_nb_max;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		} else {
-			return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.category.hasOwnProperty('category_description')) {
 			if (req.body.category.category_description) {
 				body.category.category_description = req.body.category.category_description;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_type')) {
 			if (req.body.category.category_type) {
 				body.category.category_type = req.body.category.category_type;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_nb_total')) {
 			if (req.body.category.category_nb_total) {
 				body.category.category_nb_total = req.body.category.category_nb_total;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_full')) {
 			if (req.body.category.category_full) {
 				body.category.category_full = req.body.category.category_full;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 	} else {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 		
 	body.category.category_id = uuidv4();
@@ -149,7 +149,7 @@ function checkRequestPutCategory (req, res, next) {
 	if (req.params.hasOwnProperty('id')) {
 		params.id = req.params.id;
 	} else {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 
 	if (req.body.hasOwnProperty('category')) {
@@ -157,60 +157,60 @@ function checkRequestPutCategory (req, res, next) {
 			if (req.body.category.category_label) {
 				body.category.category_label = req.body.category.category_label;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_price_regular')) {
 			if (req.body.category.category_price_regular) {
 				body.category.category_price_regular =  req.body.category.category_price_regular;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_price_va')) {
 			if (req.body.category.category_price_va) {
 				body.category.category_price_va = req.body.category.category_price_va;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_nb_max')) {
 			if (req.body.category.category_nb_max) {
 				body.category.category_nb_max = req.body.category.category_nb_max;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_description')) {
 			if (req.body.category.category_description) {
 				body.category.category_description = req.body.category.category_description;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_type')) {
 			if (req.body.category.category_type) {
 				body.category.category_type = req.body.category.category_type;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_nb_total')) {
 			if (req.body.category.category_nb_total) {
 				body.category.category_nb_total = req.body.category.category_nb_total;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_full')) {
 			if (req.body.category.category_full) {
 				body.category.category_full = req.body.category.category_full;
 			} else {
-				return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 	} else {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 
 	return {params: params, query: null, body: body};
@@ -220,20 +220,10 @@ function checkRequestPutCategory (req, res, next) {
 function checkRequestDeleteCategory (req, res, next) {
 	var params = {};
 	if (!req.params.hasOwnProperty('id')) {
-		return next(apiErrors.GENERAL_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 	params.id = req.params.id;
 	return {params: params, query: null, body: null};
-}
-
-/* The database SQL request parameters for the request GET /categories */
-function getDatabaseParameterGetCategories (params, query, body){
-	var parameters = {
-		where: {},
-		attributes: { exclude: ['team_password']},
-		include: []
-	};
-	return parameters;
 }
 
 /* The database SQL request parameters for the request GET /categories/:id */
@@ -266,7 +256,6 @@ function getDatabaseParameterDeleteCategory (params, query, body){
 
 module.exports = {
 	checkRequestGetCategory: checkRequestGetCategory,
-	getDatabaseParameterGetCategories: getDatabaseParameterGetCategories,
 	getDatabaseParameterGetCategory: getDatabaseParameterGetCategory,
 	checkRequestPostCategory: checkRequestPostCategory,
 	getDatabaseParameterPostCategory: getDatabaseParameterPostCategory,

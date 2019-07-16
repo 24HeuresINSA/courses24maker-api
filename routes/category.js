@@ -3,7 +3,6 @@
 // Middlewares and modules
 var express = require('express');
 var router = express.Router();
-var uuidv4 = require('uuid/v4');
 var sequelize = require('../config/config-database').sequelize;
 
 // Configuration files
@@ -29,7 +28,7 @@ router.get('/', authenticationUser, function(req, res, next) {
 				res.status(200);
 				res.send(utils.modelToJSON(categories));
 			} else {
-				next(apiErrors.CATEGORY_NOT_FOUND_GET_CATEGORIES, req, res);
+				next(apiErrors.CATEGORIES_NOT_FOUND, req, res);
 			}
 		})
 		.catch( err => {

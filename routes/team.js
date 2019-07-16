@@ -3,12 +3,9 @@
 // Middlewares and modules
 var express = require('express');
 var router = express.Router();
-var uuidv4 = require('uuid/v4');
-const synchronizedPromise = require('synchronized-promise');
 var sequelize = require('../config/config-database').sequelize;
 
 // Configuration files
-const config_authentication = require('../config/config-authentication.json');
 const {authenticationAdmin} = require("../config/config-authentication");
 const {authenticationUser} = require("../config/config-authentication");
 
@@ -38,6 +35,8 @@ router.get('/', authenticationAdmin, function(req, res, next) {
 			if (teams) {
 				res.status(200);
 				res.send(utils.modelToJSON(teams));
+			} else {
+				next(apiErrors.TEAMS_NOT_FOUND, req, res);
 			}
 		})
 		.catch ( err => {
@@ -75,7 +74,7 @@ router.post('/', authenticationAdmin, function(req, res, next) {
 	Team.findOne({ where: { team_name: req.body.team.team_name } })
 		.then( team => {
 			if (team) {
-				 next(apiErrors.TEAM_ALREADY_EXISTS_POST_TEAM, req, res);
+				 next(apiErrors.TEAM_ALREADY_EXISTS, req, res);
 			} else {
 				Team.create(parametersCreateTeam)
 					.then(team => {
@@ -93,13 +92,13 @@ router.post('/', authenticationAdmin, function(req, res, next) {
 										} else {
 											team.destroy({force: true});
 											participant.destroy({force: true});
-											next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_NEW_POST_TEAM, err), req, res);
+											next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_POST_TEAM, err), req, res);
 										}
 									})
 									.catch(err =>{
 										team.destroy({force: true});
 										participant.destroy({force: true});
-										next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_NEW_POST_TEAM, err), req, res);
+										next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_POST_TEAM, err), req, res);
 									});
 							})
 							.catch(err => {
@@ -108,12 +107,12 @@ router.post('/', authenticationAdmin, function(req, res, next) {
 							});
 					})
 					.catch(err => {
-						next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_NEW_POST_TEAM, err), req, res);
+						next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_POST_TEAM, err), req, res);
 					});
 			}
 		})
 		.catch( err => {
-			next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_CHECK_POST_TEAM, err), req, res)
+			next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_CHECK_TEAM, err), req, res)
 		});
 });
 
@@ -143,7 +142,7 @@ router.put('/:id', authenticationUser, function(req, res, next) {
 										res.status(204).end();
 									})
 									.catch(err => {
-										next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_NEW_PUT_TEAM, err), req, res);
+										next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_PUT_TEAM, err), req, res);
 									});
 							} else {
 								next(apiErrors.PARTICIPANT_ERROR_BAD_REQUEST_PUT_TEAM, req, res);
@@ -160,13 +159,13 @@ router.put('/:id', authenticationUser, function(req, res, next) {
 							res.status(204).end();
 						})
 						.catch(err => {
-							next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_NEW_PUT_TEAM, err), req, res);
+							next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_PUT_TEAM, err), req, res);
 						});
 				}
 			}
 		})
 		.catch( err => {
-			next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_CHECK_POST_TEAM, err), req, res)
+			next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_CHECK_TEAM, err), req, res)
 		});
 });
 
@@ -183,7 +182,7 @@ router.delete('/:id', authenticationAdmin, function(req, res, next) {
 			}
 		})
 		.catch(err => {
-			next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_DELETE_TEAMS, err), res, res)
+			next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_DELETE_TEAM, err), res, res)
 		});
 });
 

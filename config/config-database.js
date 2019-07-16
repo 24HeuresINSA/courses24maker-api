@@ -16,21 +16,23 @@ let mysqlConnexion = function () {
 	});
 }
 
-const sequelize = new Sequelize(config_database.mysql.dev.database, 'root', 'root', {
-
-	host: 'localhost',
-	dialect: 'mysql',
-	operatorsAliases: false,
-	port: 3306,
-	pool: {
-		max: 5,
-		min: 0,
-		acquire: 30000,
-		idle: 10000
-	},
+const sequelize = new Sequelize(config_database.mysql.dev.database,
+		config_database.mysql.dev.user,
+		config_database.mysql.dev.password,
+		{
+			host: 'localhost',
+			dialect: 'mysql',
+			operatorsAliases: false,
+			port: 3306,
+			pool: {
+				max: 5,
+				min: 0,
+				acquire: 30000,
+				idle: 10000
+			}
 });
 
-let sequelizeAuthentication = function (){
+let sequelizeAuthentication = function () {
 	sequelize.authenticate()
 		.then(function (err) {
 			console.log('Connected to DB with Sequelize !');
@@ -38,7 +40,7 @@ let sequelizeAuthentication = function (){
 			console.log('Connexion to DB with Sequelize do not works');
 			console.log(err);
 		})
-}
+};
 
 module.exports = {
 	mysqlDatabaseConfiguration: mysqlConnexion,
