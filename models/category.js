@@ -36,7 +36,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.FLOAT,
       allowNull: true
     },
-    category_price_va: {
+    category_price_student: {
       type: DataTypes.FLOAT,
       allowNull: true
     },

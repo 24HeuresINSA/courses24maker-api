@@ -39,7 +39,7 @@ const defaultBodyPostCategory = {
 		category_type: null,
 		category_nb_total: null,
 		category_price_regular: 0,
-		category_price_va: 0
+		category_price_student: 0
 	}
 };
 
@@ -86,9 +86,9 @@ function checkRequestPostCategory (req, res, next) {
 		} else {
 			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
-		if (req.body.category.hasOwnProperty('category_price_va')) {
-			if (req.body.category.category_price_va) {
-				body.category.category_price_va = req.body.category.category_price_va;
+		if (req.body.category.hasOwnProperty('category_price_student')) {
+			if (req.body.category.category_price_student) {
+				body.category.category_price_student = req.body.category.category_price_student;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
@@ -167,9 +167,9 @@ function checkRequestPutCategory (req, res, next) {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
-		if (req.body.category.hasOwnProperty('category_price_va')) {
-			if (req.body.category.category_price_va) {
-				body.category.category_price_va = req.body.category.category_price_va;
+		if (req.body.category.hasOwnProperty('category_price_student')) {
+			if (req.body.category.category_price_student) {
+				body.category.category_price_student = req.body.category.category_price_student;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}

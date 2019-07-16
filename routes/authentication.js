@@ -21,6 +21,18 @@ var Participant = sequelize.import('../models/participant');
 
 // ---------- ROUTES ----------
 
+/**
+ * @apiGroup AUTHENTICATION
+ * @api {POST} /authentication/login Login and get the jwt
+ * @apiDescription Login the api to get the jwt
+ * @apiSuccess (Sucess 200) {String} jwt The jwt to use as a header bearer to request this api
+ * @apiParam (Body) {String} user ``Mandatory`` The user (name of the team or admin)
+ * @apiParam (Body) {String} password ``Mandatory`` The password of the team or of the admin account
+ * @apiError (Error 4xx) {400} AUTHENTICATION_ERROR_BAD_REQUEST Your request is wrong
+ * @apiError (Error 4xx) {401} AUTHENTICATION_ERROR_PASSWORD_WRONG Bad password
+ * @apiError (Error 4xx) {404} AUTHENTICATION_ERROR_TEAM_DOES_NOT_EXIST The team does not exist
+ * @apiError (Error 5xx) {500} AUTHENTICATION_ERROR_INTERNAL_RETRIEVE_TEAM An internal error occurs
+ */
 router.post('/login', function(req, res, next) {
 
 	// If request well formed
@@ -67,6 +79,28 @@ router.post('/login', function(req, res, next) {
 
 });
 
+/**
+ * @apiGroup AUTHENTICATION
+ * @api {POST} /authentication/register Register a new user
+ * @apiDescription Create a new user for the api that is to say a new team with a manager
+ * @apiSuccess (Sucess 201) {String} jwt The jwt of the team to use as a header bearer to request this api
+ * @apiParam (Body) {Object} team The information of the team to create
+ * @apiParam (Body) {String} team.team_name ``Mandatory`` The name of the team to create
+ * @apiParam (Body) {String} team.team_password ``Mandatory`` The password of the team to create
+ * @apiParam (Body) {String} team.category_id ``Mandatory`` The uuid of the category associated to the team to create
+ * @apiParam (Body) {Object} team_manager The information of the manager of the team to create
+ * @apiParam (Body) {String} team_manager.participant_name ``Mandatory`` The name of the manager of the team to create
+ * @apiParam (Body) {String} team_manager.participant_surname ``Mandatory`` The surname of the manager of the team to create
+ * @apiParam (Body) {Date} team_manager.participant_birthdate ``Mandatory`` The birthdate of the manager of the team to create
+ * @apiParam (Body) {String} team_manager.participant_telephone ``Mandatory`` The telephone of the manager of the team to create
+ * @apiParam (Body) {String} team_manager.participant_email ``Mandatory`` The email of the manager of the team to create
+ * @apiUse GenericAuthenticationError
+ * @apiError (Error 4xx) {400} GENERIC_ERROR_REQUEST_FORMAT_ERROR Your request (body or query param) is wrong
+ * @apiError (Error 4xx) {409} TEAM_ALREADY_EXISTS The team with the same name already exists
+ * @apiError (Error 5xx) {500} TEAM_ERROR_INTERNAL_CHECK_TEAM An internal error occurs
+ * @apiError (Error 5xx) {500} TEAM_ERROR_INTERNAL_POST_TEAM An internal error occurs
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_NEW_POST_TEAM An internal error occurs
+ */
 router.post('/register', function(req, res, next) {
 	// Check if the body is properly formed
 	const request = service_team.checkRequestPostTeam(req, res, next);

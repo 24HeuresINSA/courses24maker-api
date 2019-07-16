@@ -102,24 +102,6 @@ function checkRequestGetParticipants (req, res, next) {
 					body.filter.team_category_id.push(value);
 				});
 			}
-			/*if (req.body.filter.hasOwnProperty('team_category_id') && req.body.filter.team_category_id.length > 0) {
-				var categoriesId = [];
-				body.filter.team_category_id = [];
-				categoriesIdPromise
-					.then(categories => {
-						categories.forEach(val => {
-							categoriesId.push(val.category_id);
-						});
-						req.body.filter.team_category_id.forEach((value, index) => {
-							if (value.includes(categoriesId)) {
-								body.filter.team_category_id.push(value);
-							}
-						});
-					})
-					.catch(err => {
-						next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_GET_ALL, err), req, res);
-					});
-			}*/
 			if (req.body.filter.hasOwnProperty('participant_payment_valid') && req.body.filter.participant_payment_valid.length > 0) {
 				body.filter.participant_payment_valid = [];
 				req.body.filter.participant_payment_valid.forEach((value, index) => {
@@ -174,24 +156,6 @@ function checkRequestGetParticipantsTeam (req, res, next) {
 					body.filter.team_category_id.push(value);
 				});
 			}
-			/*if (req.body.filter.hasOwnProperty('team_category_id') && req.body.filter.team_category_id.length > 0) {
-				var categoriesId = [];
-				body.filter.team_category_id = [];
-				categoriesIdPromise
-					.then(categories => {
-						categories.forEach(val => {
-							categoriesId.push(val.category_id);
-						});
-						req.body.filter.team_category_id.forEach((value, index) => {
-							if (value.includes(categoriesId)) {
-								body.filter.team_category_id.push(value);
-							}
-						});
-					})
-					.catch(err => {
-						next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_GET_ALL, err), req, res);
-					});
-			}*/
 			if (req.body.filter.hasOwnProperty('participant_payment_valid') && req.body.filter.participant_payment_valid.length > 0) {
 				body.filter.participant_payment_valid = [];
 				req.body.filter.participant_payment_valid.forEach((value, index) => {
@@ -242,24 +206,6 @@ function checkRequestGetParticipant (req, res, next) {
 					body.filter.team_category_id.push(value);
 				});
 			}
-			/*if (req.body.filter.hasOwnProperty('team_category_id') && req.body.filter.team_category_id.length > 0) {
-				var categoriesId = [];
-				body.filter.team_category_id = [];
-				categoriesIdPromise
-					.then(categories => {
-						categories.forEach(val => {
-							categoriesId.push(val.category_id);
-						});
-						req.body.filter.team_category_id.forEach((value, index) => {
-							if (value.includes(categoriesId)) {
-								body.filter.team_category_id.push(value);
-							}
-						});
-					})
-					.catch(err => {
-						next(new service_errors.InternalErrorObject(apiErrors.TEAM_ERROR_INTERNAL_GET_ALL, err), req, res);
-					});
-			}*/
 			if (req.body.filter.hasOwnProperty('participant_payment_valid') && req.body.filter.participant_payment_valid.length > 0) {
 				body.filter.participant_payment_valid = [];
 				req.body.filter.participant_payment_valid.forEach((value, index) => {
@@ -553,7 +499,7 @@ function getDatabaseParameterGetParticipants (params, query, body){
 
 	if (query.team) {
 		parameters.include.push({model: Team, as: 'participant_team', attributes: ['team_id', 'team_name', 'team_valid'],
-			include: [ {model: Category, as: 'team_category'} ] });
+			include: [ {model: Category, as: 'team_category', attributes: ['category_id', 'category_label'] } ] });
 	}
 
 	return parameters;
@@ -572,7 +518,7 @@ function getDatabaseParameterGetParticipantsTeam (params, query, body){
 
 	if (query.team) {
 		parameters.include.push({model: Team, as: 'participant_team', attributes: ['team_id', 'team_name', 'team_valid'],
-			include: [ {model: Category, as: 'team_category'} ] });
+			include: [ {model: Category, as: 'team_category', attributes: ['category_id', 'category_label'] } ] });
 	}
 
 	return parameters;
@@ -592,7 +538,7 @@ function getDatabaseParameterGetParticipant (params, query, body){
 
 	if (query.team) {
 		parameters.include.push({model: Team, as: 'participant_team', attributes: ['team_id', 'team_name', 'team_valid'],
-			include: [ {model: Category, as: 'team_category'} ] });
+			include: [ {model: Category, as: 'team_category', attributes: ['category_id', 'category_label'] } ] });
 	}
 
 	return parameters;

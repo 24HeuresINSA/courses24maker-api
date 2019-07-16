@@ -65,9 +65,9 @@ var migrationCommands = [{
                     "field": "category_price_regular",
                     "allowNull": true
                 },
-                "category_price_va": {
+                "category_price_student": {
                     "type": Sequelize.FLOAT,
-                    "field": "category_price_va",
+                    "field": "category_price_student",
                     "allowNull": true
                 },
                 "updatedAt": {

@@ -346,7 +346,7 @@ function checkRequestDeleteTeams (req, res, next) {
 function getDatabaseParameterGetTeams (params, query, body){
 	var parameters = {
 		where: {},
-		attributes: { exclude: ['team_password']},
+		attributes: { exclude: ['team_password', 'team_salt']},
 		include: []
 	};
 
@@ -367,7 +367,7 @@ function getDatabaseParameterGetTeams (params, query, body){
 function getDatabaseParameterGetTeam (params, query, body){
 	var parameters = {
 		where: { team_id: params.id },
-		attributes: { exclude: ['team_password']},
+		attributes: { exclude: ['team_password', 'team_salt']},
 		include: []
 	};
 

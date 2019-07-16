@@ -47,9 +47,9 @@
                     "field": "category_price_regular",
                     "seqType": "Sequelize.FLOAT"
                 },
-                "category_price_va": {
+                "category_price_student": {
                     "allowNull": true,
-                    "field": "category_price_va",
+                    "field": "category_price_student",
                     "seqType": "Sequelize.FLOAT"
                 },
                 "updatedAt": {
