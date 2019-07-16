@@ -32,16 +32,16 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: '0'
     },
-    participant_medical_certificat: {
-      type: DataTypes.BLOB,
+    participant_medical_certificate: {
+      type: DataTypes.TEXT('medium'),
       allowNull: true
     },
-    participant_medical_certificat_valid: {
+    participant_medical_certificate_valid: {
       type: DataTypes.INTEGER(4),
       allowNull: true,
       defaultValue: '0'
     },
-    participant_medical_certificat_file: {
+    participant_medical_certificate_file: {
         type: DataTypes.STRING(128),
         allowNull: true
     },

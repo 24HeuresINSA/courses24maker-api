@@ -52,6 +52,7 @@ const apiErrors = {
 	PARTICIPANT_NOT_FOUND: new ApiErrorObject(404, "PARTICIPANT_NOT_FOUND", "NOT_FOUND", { "fr": "Le participant n'existe pas", "en": "The participant does not exist"}),
 	PARTICIPANTS_NOT_FOUND: new ApiErrorObject(404, "PARTICIPANTS_NOT_FOUND", "NOT_FOUND", { "fr": "Aucune participant trouvé", "en": "No participant found"}),
 	PARTICIPANT_ALREADY_EXISTS: new ApiErrorObject(409, "PARTICIPANT_ALREADY_EXISTS", "CONFLICT", { "fr": "Un participant similaire existe déjà", "en": "A participant with the same information already exists"}),
+	PARTICIPANT_CERTIFICATE_FORMAT_INVALID: new ApiErrorObject(415, "PARTICIPANT_CERTIFICATE_FORMAT_INVALID", "UNSUPPORTED_MEDIA_TYPE", { "fr": "Le certificat doit être en pdf, jpg ou png", "en": "The medical certificate must be in format pdf, jpg orpng"}),
 	PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANTS: new ApiErrorObject(500, "PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANTS", "INTERNAL_ERROR", { "fr": "Problème pour retrouver tous les participants", "en": "Problem to retrieve all the participants"}),
 	PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT: new ApiErrorObject(500, "PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT", "INTERNAL_ERROR", { "fr": "Problème pour retrouver le participant", "en": "Problem to retrieve the participant"}),
 	PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT: new ApiErrorObject(500, "PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT", "INTERNAL_ERROR", { "fr": "Problème pour vérifier l'existence du participant", "en": "Problem to check if the participant already exists"}),

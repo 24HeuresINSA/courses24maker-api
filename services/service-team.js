@@ -53,9 +53,9 @@ const defaultBodyPostTeam = {
 		participant_surname: null,
 		participant_birthdate: null,
 		participant_student: null,
-		participant_medical_certificat: null,
-		participant_medical_certificat_file: null,
-		participant_medical_certificat_valid: 0,
+		participant_medical_certificate: null,
+		participant_medical_certificate_file: null,
+		participant_medical_certificate_valid: 0,
 		participant_payment: 0,
 		participant_tee_shirt_size: null,
 		participant_comment: null,
@@ -236,16 +236,16 @@ function checkRequestPostTeam (req, res, next) {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
-		if (req.body.team_manager.hasOwnProperty('participant_medical_certificat')) {
-			if (req.body.team_manager.participant_medical_certificat) {
-				body.team_manager.participant_medical_certificat = req.body.team_manager.participant_medical_certificat
+		if (req.body.team_manager.hasOwnProperty('participant_medical_certificate')) {
+			if (req.body.team_manager.participant_medical_certificate) {
+				body.team_manager.participant_medical_certificate = req.body.team_manager.participant_medical_certificate
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
-		if (req.body.team_manager.hasOwnProperty('participant_medical_certificat_file')) {
-			if (req.body.team_manager.participant_medical_certificat_file) {
-				body.team_manager.participant_medical_certificat_file = req.body.team_manager.participant_medical_certificat_file
+		if (req.body.team_manager.hasOwnProperty('participant_medical_certificate_file')) {
+			if (req.body.team_manager.participant_medical_certificate_file) {
+				body.team_manager.participant_medical_certificate_file = req.body.team_manager.participant_medical_certificate_file
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
@@ -273,7 +273,7 @@ function checkRequestPostTeam (req, res, next) {
 
 	body.team_manager.participant_id = uuidv4();
 	body.team_manager.participant_payment = service_participant.participantPaymentValidityValueMatch.PAYMENT_NOT_RECEIVED.value;
-	body.team_manager.participant_medical_certificat_valid = service_participant.participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.value;
+	body.team_manager.participant_medical_certificate_valid = service_participant.participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.value;
 
 	return {params: null, query: null, body: body};
 }
@@ -357,7 +357,7 @@ function getDatabaseParameterGetTeams (params, query, body){
 		parameters.include.push({model: Category, as:'team_category', attributes: ['category_id', 'category_label']});
 	}
 	if (query.participants) {
-		parameters.include.push({model: Participant, as: 'team_participants'});
+		parameters.include.push({model: Participant, as: 'team_participants', attributes: {exclude: ['participant_medical_certificate']}});
 	}
 
 	return parameters;
@@ -378,7 +378,7 @@ function getDatabaseParameterGetTeam (params, query, body){
 		parameters.include.push({model: Category, as:'team_category', attributes: ['category_id', 'category_label']});
 	}
 	if (query.participants) {
-		parameters.include.push({model: Participant, as: 'team_participants'});
+		parameters.include.push({model: Participant, as: 'team_participants', attributes: {exclude: ['participant_medical_certificate']}});
 	}
 
 	return parameters;

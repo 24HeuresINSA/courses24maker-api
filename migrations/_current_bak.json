@@ -106,22 +106,22 @@
                     "field": "participant_student",
                     "seqType": "Sequelize.INTEGER(4)"
                 },
-                "participant_medical_certificat": {
+                "participant_medical_certificate": {
                     "allowNull": true,
-                    "field": "participant_medical_certificat",
+                    "field": "participant_medical_certificate",
                     "seqType": "Sequelize.BLOB"
                 },
-                "participant_medical_certificat_valid": {
+                "participant_medical_certificate_valid": {
                     "allowNull": true,
                     "defaultValue": {
                         "value": "0"
                     },
-                    "field": "participant_medical_certificat_valid",
+                    "field": "participant_medical_certificate_valid",
                     "seqType": "Sequelize.INTEGER(4)"
                 },
-                "participant_medical_certificat_file": {
+                "participant_medical_certificate_file": {
                     "allowNull": true,
-                    "field": "participant_medical_certificat_file",
+                    "field": "participant_medical_certificate_file",
                     "seqType": "Sequelize.STRING(128)"
                 },
                 "participant_payment": {

@@ -121,20 +121,20 @@ var migrationCommands = [{
                     "defaultValue": "0",
                     "allowNull": true
                 },
-                "participant_medical_certificat": {
+                "participant_medical_certificate": {
                     "type": Sequelize.BLOB,
-                    "field": "participant_medical_certificat",
+                    "field": "participant_medical_certificate",
                     "allowNull": true
                 },
-                "participant_medical_certificat_valid": {
+                "participant_medical_certificate_valid": {
                     "type": Sequelize.INTEGER(4),
-                    "field": "participant_medical_certificat_valid",
+                    "field": "participant_medical_certificate_valid",
                     "defaultValue": "0",
                     "allowNull": true
                 },
-                "participant_medical_certificat_file": {
+                "participant_medical_certificate_file": {
                     "type": Sequelize.STRING(128),
-                    "field": "participant_medical_certificat_file",
+                    "field": "participant_medical_certificate_file",
                     "allowNull": true
                 },
                 "participant_payment": {
