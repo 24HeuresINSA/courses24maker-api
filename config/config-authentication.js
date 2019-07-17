@@ -18,33 +18,6 @@ var apiErrors = service_errors.apiErrors;
 // Models
 var Team = sequelize.import('../models/team');
 
-let localAuthenticationConfiguration = passport.use(new LocalStrategy({
-		usernameField: 'username',
-		passwordField: 'password'
-	},
-	function(login, password, done) {
-		Team.findOne({ raw: true, where: { team_name: login }})
-			.then( team => {
-
-				setTimeout(function () {
-
-					if (!team) {
-						return done(null, false, {message: 'Incorrect username.'});
-					}
-					if (team.team_password != sha256.x2(password + team.team_salt)) {
-						return done(null, false, {message: 'Incorrect password.'});
-					}
-					return done(null, team);
-
-				}, 1000);
-
-			})
-			.catch( err => {
-				return done(err);
-			});
-	}
-));
-
 let jwtAuthenticationConfiguration = passport.use(new JwtStrategy({
 	"jwtFromRequest": ExtractJwt.fromAuthHeaderAsBearerToken(),
 	"secretOrKey": config_authentication["jwt-private-key"]

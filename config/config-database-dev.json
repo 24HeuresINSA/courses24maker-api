@@ -1,0 +1,19 @@
+{
+    "mysql":
+    {
+        "dev": {
+            "host": "localhost",
+            "user": "",
+            "password": "",
+            "port": 3306,
+            "database": "db_courses24maker_api_dev"
+        },
+        "prod": {
+            "host": "localhost",
+            "user": "",
+            "password": "",
+            "port": 3306,
+            "database": "db_courses24maker_api"
+        }
+    }
+}

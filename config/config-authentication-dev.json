@@ -1,0 +1,12 @@
+{
+	"jwt-private-key": "",
+	"jwt-public-key": "",
+	"jwt-issuer": "courses-api-24hinsa",
+	"admin-login": "",
+	"admin-password": "",
+	"admin-jwt-subject": "courses-admin-24hinsa",
+	"admin-jwt-audience": "courses-admin-24hinsa",
+	"admin-jwt-scope": "",
+	"user-jwt-audience": "courses-client-24hinsa",
+	"user-jwt-scope": ""
+}
