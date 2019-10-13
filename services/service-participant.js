@@ -309,8 +309,6 @@ function checkRequestPostParticipant (req, res, next) {
 		if (req.body.participant.hasOwnProperty('participant_comment')) {
 			if (req.body.participant.participant_comment) {
 				body.participant.participant_comment = req.body.participant.participant_comment
-			} else {
-				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.participant.hasOwnProperty('participant_team_id') && isAdminScope) {
@@ -346,8 +344,6 @@ function checkRequestPostParticipant (req, res, next) {
 		if (req.body.participant.hasOwnProperty('participant_message') && isAdminScope) {
 			if (req.body.participant.participant_message) {
 				body.participant.participant_message = req.body.participant.participant_message
-			} else {
-				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.participant.hasOwnProperty('participant_medical_certificate')) {
@@ -432,7 +428,7 @@ function checkRequestPutParticipant (req, res, next) {
 			if (req.body.participant.participant_comment) {
 				body.participant.participant_comment = req.body.participant.participant_comment
 			} else {
-				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				body.participant.participant_comment = null;
 			}
 		}
 		if (req.body.participant.hasOwnProperty('participant_team_id') && isAdminScope) {
@@ -467,8 +463,8 @@ function checkRequestPutParticipant (req, res, next) {
 		if (req.body.participant.hasOwnProperty('participant_message') && isAdminScope) {
 			if (req.body.participant.participant_message) {
 				body.participant.participant_message = req.body.participant.participant_message
-			} else {
-				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}else {
+				body.participant.participant_message = null;
 			}
 		}
 	} else {

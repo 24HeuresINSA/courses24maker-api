@@ -75,6 +75,8 @@ router.get('/', authenticationUser, function(req, res, next) {
 	Category.findAll({ order:[['category_label','DESC']] })
 		.then( categories => {
 			if (categories) {
+				res.header("Access-Control-Allow-Origin", "*");
+				res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 				res.status(200);
 				res.send({
 					"categories": utils.modelToJSON(categories)

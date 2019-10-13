@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var passport = require('passport');
+var cors = require('cors');
 var bodyParser = require('body-parser');
 var service_errors = require('./services/service-errors');
 
@@ -16,6 +17,7 @@ var coureurRouter = require('./routes/participant');
 var equipeRouter = require('./routes/team');
 var categorieRouter = require('./routes/category');
 var authenticationRouter = require('./routes/authentication');
+var statisticsRouter = require('./routes/statistics');
 
 var app = express();
 var router = express.Router();
@@ -33,6 +35,12 @@ authenticationConfig.jwtAuthenticationConfiguration
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+app.use(cors({
+	"origin": "*",
+	"methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+	"preflightContinue": false,
+	"optionsSuccessStatus": 204
+}));
 app.use(logger('dev'));
 app.use(express.json({limit:'50mb'}));
 app.use(express.urlencoded({ extended: false }));
@@ -55,6 +63,7 @@ app.use('/', indexRouter);
 app.use('/participants', coureurRouter);
 app.use('/teams', equipeRouter);
 app.use('/categories', categorieRouter);
+app.use('/statistics', statisticsRouter);
 
 app.use( function (err, req, res, next) {
 	if (err instanceof service_errors.ApiErrorObject) {

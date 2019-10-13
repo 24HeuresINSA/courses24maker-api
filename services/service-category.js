@@ -78,7 +78,7 @@ function checkRequestPostCategory (req, res, next) {
 			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.category.hasOwnProperty('category_price_regular')) {
-			if (req.body.category.category_price_regular) {
+			if (req.body.category.category_price_regular>=0) {
 				body.category.category_price_regular =  req.body.category.category_price_regular;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
@@ -87,7 +87,7 @@ function checkRequestPostCategory (req, res, next) {
 			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
 		if (req.body.category.hasOwnProperty('category_price_student')) {
-			if (req.body.category.category_price_student) {
+			if (req.body.category.category_price_student>=0) {
 				body.category.category_price_student = req.body.category.category_price_student;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
@@ -119,14 +119,14 @@ function checkRequestPostCategory (req, res, next) {
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_nb_total')) {
-			if (req.body.category.category_nb_total) {
+			if (req.body.category.category_nb_total>=0) {
 				body.category.category_nb_total = req.body.category.category_nb_total;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_full')) {
-			if (req.body.category.category_full) {
+			if (req.body.category.category_full>=0) {
 				body.category.category_full = req.body.category.category_full;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
@@ -161,21 +161,21 @@ function checkRequestPutCategory (req, res, next) {
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_price_regular')) {
-			if (req.body.category.category_price_regular) {
+			if (req.body.category.category_price_regular>=0) {
 				body.category.category_price_regular =  req.body.category.category_price_regular;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_price_student')) {
-			if (req.body.category.category_price_student) {
+			if (req.body.category.category_price_student>=0) {
 				body.category.category_price_student = req.body.category.category_price_student;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_nb_max')) {
-			if (req.body.category.category_nb_max) {
+			if (req.body.category.category_nb_max>=0) {
 				body.category.category_nb_max = req.body.category.category_nb_max;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
@@ -196,14 +196,14 @@ function checkRequestPutCategory (req, res, next) {
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_nb_total')) {
-			if (req.body.category.category_nb_total) {
+			if (req.body.category.category_nb_total>=0) {
 				body.category.category_nb_total = req.body.category.category_nb_total;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 		if (req.body.category.hasOwnProperty('category_full')) {
-			if (req.body.category.category_full) {
+			if (req.body.category.category_full >=0) {
 				body.category.category_full = req.body.category.category_full;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);

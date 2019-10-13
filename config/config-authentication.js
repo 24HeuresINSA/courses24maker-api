@@ -64,7 +64,6 @@ const authenticationUser = function(req, res, next){
 
 
 module.exports = {
-	localAuthenticationConfiguration: localAuthenticationConfiguration,
 	jwtAuthenticationConfiguration: jwtAuthenticationConfiguration,
 	authenticationAdmin: authenticationAdmin,
 	authenticationUser: authenticationUser
