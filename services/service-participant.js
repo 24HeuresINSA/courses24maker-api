@@ -27,7 +27,7 @@ var Category = sequelize.import('../models/category');
 const participantPaymentValidityValueMatch= {
 	PAYMENT_VALID: {label: "PAYMENT_VALID", value: 1},
 	PAYMENT_INCOMPLETE: {label: "PAYMENT_INCOMPLETE", value: 2},
-	PAYMENT_NOT_RECEIVED: {label: "TEAM_RPAYMENT_NOT_RECEIVED", value: 0}
+	PAYMENT_NOT_RECEIVED: {label: "TEAM_PAYMENT_NOT_RECEIVED", value: 0}
 };
 
 /* All possible values that can be associated to a paeticipant concerning its medical certificate validity*/

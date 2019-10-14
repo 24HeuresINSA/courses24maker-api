@@ -154,6 +154,13 @@ function checkRequestGetTeam (req, res, next) {
 function checkRequestPostTeam (req, res, next) {
 	var body = Object.assign({}, defaultBodyPostTeam);
 
+	body.team.team_id = uuidv4();
+	body.team.team_valid = 0;
+
+	body.team_manager.participant_id = uuidv4();
+	body.team_manager.participant_payment = 0;//service_participant.participantPaymentValidityValueMatch.PAYMENT_NOT_RECEIVED.value;
+	body.team_manager.participant_medical_certificate_valid = 0;//service_participant.participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.value;
+
 	if (req.body.hasOwnProperty('team')) {
 		if (req.body.team.hasOwnProperty('team_name')) {
 			if (req.body.team.team_name) {
@@ -179,10 +186,16 @@ function checkRequestPostTeam (req, res, next) {
 		} else {
 			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 		}
+		if (req.body.team.hasOwnProperty('team_valid')) {
+			if (req.body.team.team_valid>=0) {
+				body.team.team_valid = req.body.team.team_valid;
+			} else {
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		}
 	} else {
 		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
-
 	if (req.body.hasOwnProperty('team_manager')) {
 		if (req.body.team_manager.hasOwnProperty('participant_name')) {
 			if (req.body.team_manager.participant_name) {
@@ -268,13 +281,6 @@ function checkRequestPostTeam (req, res, next) {
 		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 	}
 
-	body.team.team_id = uuidv4();
-	body.team.team_valid = 0;
-
-	body.team_manager.participant_id = uuidv4();
-	body.team_manager.participant_payment = service_participant.participantPaymentValidityValueMatch.PAYMENT_NOT_RECEIVED.value;
-	body.team_manager.participant_medical_certificate_valid = service_participant.participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.value;
-
 	return {params: null, query: null, body: body};
 }
 
@@ -321,7 +327,7 @@ function checkRequestPutTeam (req, res, next) {
 			}
 		}
 		if (req.body.team.hasOwnProperty('team_valid') && isAdminScope) {
-			if (req.body.team.team_valid) {
+			if (req.body.team.team_valid>=0) {
 				body.team.team_valid = req.body.team.team_valid;
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
