@@ -65,7 +65,7 @@ function checkRequestGetCategory (req, res, next) {
 
 /* The body check for the request POST /categories */
 function checkRequestPostCategory (req, res, next) {
-	var body = Object.assign({}, defaultBodyPostCategory);
+	var body = JSON.parse(JSON.stringify(defaultBodyPostCategory));
 
 	if (req.body.hasOwnProperty('category')) {
 		if (req.body.category.hasOwnProperty('category_label')) {
@@ -144,7 +144,7 @@ function checkRequestPostCategory (req, res, next) {
 /* The body check for the request PUT /categories/:id */
 function checkRequestPutCategory (req, res, next) {
 	var params = {};
-	var body = Object.assign({}, defaultBodyPutCategory);
+	var body = JSON.parse(JSON.stringify(defaultBodyPutCategory));
 
 	if (req.params.hasOwnProperty('id')) {
 		params.id = req.params.id;

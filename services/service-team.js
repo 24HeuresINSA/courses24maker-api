@@ -81,8 +81,8 @@ const defaultQueryGetTeams = {
 
 /* The body check for the request GET /teams */
 function checkRequestGetTeams (req, res, next) {
-	var query = Object.assign({}, defaultQueryGetTeams);
-	var body = Object.assign({}, defaultBodyGetTeams);
+	var query = JSON.parse(JSON.stringify(defaultQueryGetTeams));
+	var body = JSON.parse(JSON.stringify(defaultBodyGetTeams));
 	var categoriesIdPromise = Category.findAll({ raw: true, attributes: ["category_id"] });
 
 	try {
@@ -131,7 +131,7 @@ function checkRequestGetTeams (req, res, next) {
 /* The body check for the request GET /teams/:id */
 function checkRequestGetTeam (req, res, next) {
 	var params = {};
-	var query = Object.assign({}, defaultQueryGetTeams);
+	var query = JSON.parse(JSON.stringify(defaultQueryGetTeams));
 	try {
 		if (req.params.hasOwnProperty('id')) {
 			params.id = req.params.id;
@@ -152,7 +152,7 @@ function checkRequestGetTeam (req, res, next) {
 
 /* The body check for the request POST /teams */
 function checkRequestPostTeam (req, res, next) {
-	var body = Object.assign({}, defaultBodyPostTeam);
+	var body = JSON.parse(JSON.stringify(defaultBodyPostTeam));
 
 	body.team.team_id = uuidv4();
 	body.team.team_valid = 0;
@@ -288,7 +288,7 @@ function checkRequestPostTeam (req, res, next) {
 function checkRequestPutTeam (req, res, next) {
 	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
 	var params = {};
-	var body = Object.assign({}, defaultBodyPutTeam);
+	var body = JSON.parse(JSON.stringify(defaultBodyPutTeam));
 
 	if (req.params.hasOwnProperty('id')) {
 		params.id = req.params.id;
@@ -363,7 +363,7 @@ function getDatabaseParameterGetTeams (params, query, body){
 		parameters.include.push({model: Category, as:'team_category', attributes: ['category_id', 'category_label']});
 	}
 	if (query.participants) {
-		parameters.include.push({model: Participant, as: 'team_participants', attributes: {exclude: ['participant_medical_certificate']}});
+		parameters.include.push({model: Participant, as: 'team_participants', attributes: {exclude: ['participant_medical_certificate', 'participant_student_certificate' ]}});
 	}
 
 	return parameters;
@@ -384,7 +384,7 @@ function getDatabaseParameterGetTeam (params, query, body){
 		parameters.include.push({model: Category, as:'team_category', attributes: ['category_id', 'category_label']});
 	}
 	if (query.participants) {
-		parameters.include.push({model: Participant, as: 'team_participants', attributes: {exclude: ['participant_medical_certificate']}});
+		parameters.include.push({model: Participant, as: 'team_participants', attributes: {exclude: ['participant_medical_certificate', 'participant_student_certificate' ]}});
 	}
 
 	return parameters;

@@ -61,7 +61,8 @@ const apiErrors = {
 	PARTICIPANT_ERROR_INTERNAL_DELETE_PARTICIPANT: new ApiErrorObject(500, "PARTICIPANT_ERROR_INTERNAL_DELETE_PARTICIPANT", "INTERNAL_ERROR", { "fr": "Problème pour supprimer le participant", "en": "Problem to remove the participant"}),
 
 	// Generics Errors
-	GENERIC_ERROR_REQUEST_FORMAT_ERROR: new ApiErrorObject(400, "GENERIC_ERROR_REQUEST_FORMAT_ERROR", "BAD REQUEST", { "fr": "La requête est mal formée", "en": "The request is malformed"})
+	GENERIC_ERROR_REQUEST_FORMAT_ERROR: new ApiErrorObject(400, "GENERIC_ERROR_REQUEST_FORMAT_ERROR", "BAD REQUEST", { "fr": "La requête est mal formée", "en": "The request is malformed"}),
+	GENERIC_ERROR_REQUEST_CONTENT_TYPE_ERROR: new ApiErrorObject(406, "GENERIC_ERROR_REQUEST_CONTENT_TYPE_ERROR", "NOT ACCEPTABLE", { "fr": "Le type de requète n'est pas supporté", "en": "The request type is unsupported"})
 };
 
 module.exports = {

@@ -3,6 +3,7 @@
 // Middlewares and modules
 var sequelize = require('../config/config-database').sequelize;
 const {base64encode, base64decode} = require('nodejs-base64');
+const validDataUrl = require('valid-data-url');
 const uuidv4 = require('uuid/v4');
 const Op = sequelize.Op;
 const fs = require('fs');
@@ -23,18 +24,19 @@ var Category = sequelize.import('../models/category');
 
 // ---------- CONFIGURATIONS ----------
 
-/* All possible values that can be associated to a paeticipant concerning its payment validity*/
+/* All possible values that can be associated to a participant concerning its payment validity*/
 const participantPaymentValidityValueMatch= {
 	PAYMENT_VALID: {label: "PAYMENT_VALID", value: 1},
 	PAYMENT_INCOMPLETE: {label: "PAYMENT_INCOMPLETE", value: 2},
 	PAYMENT_NOT_RECEIVED: {label: "TEAM_PAYMENT_NOT_RECEIVED", value: 0}
 };
 
-/* All possible values that can be associated to a paeticipant concerning its medical certificate validity*/
+/* All possible values that can be associated to a participant concerning its medical certificate validity*/
 const participantCertificateValidityValueMatch= {
 	MEDICAL_CERTIFICATE_VALID: {label: "MEDICAL_CERTIFICATE_VALID", value: 1},
 	MEDICAL_CERTIFICATE_INVALID: {label: "MEDICAL_CERTIFICATE_INVALID", value: 2},
-	MEDICAL_CERTIFICATE_NOT_RECEIVED: {label: "MEDICAL_CERTIFICATE_NOT_RECEIVED", value: 0}
+	MEDICAL_CERTIFICATE_NOT_RECEIVED: {label: "MEDICAL_CERTIFICATE_NOT_RECEIVED", value: 0},
+	MEDICAL_CERTIFICATE_IN_REVIEW: {label: "MEDICAL_CERTIFICATE_IN_REVIEW", value: 3}
 };
 
 /* The default query configuration when a request coming for GET /participants and GET /participants/:id */
@@ -77,8 +79,8 @@ const defaultBodyPutParticipant = {
 
 /* The body check for the request GET /participants */
 function checkRequestGetParticipants (req, res, next) {
-	var query = Object.assign({}, defaultQueryGetParticipants);
-	var body = Object.assign({}, defaultBodyGetParticipants);
+	var query = JSON.parse(JSON.stringify(defaultQueryGetParticipants));
+	var body = JSON.parse(JSON.stringify(defaultBodyGetParticipants));
 
 	if (req.hasOwnProperty('query')) {
 		req.query.hasOwnProperty('team') ? (['true', 'false'].includes(req.query.team) ? query.team = JSON.parse(req.query.team) : null) : null;
@@ -91,7 +93,8 @@ function checkRequestGetParticipants (req, res, next) {
 				req.body.filter.participant_medical_certificate_valid.forEach((value, index) => {
 					if (value.includes([participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_VALID.label,
 							participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.label,
-							participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_INVALID.label])) {
+							participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_INVALID.label,
+							participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_IN_REVIEW.label])) {
 						body.filter.participant_medical_certificate_valid.push(value);
 					}
 				});
@@ -121,8 +124,8 @@ function checkRequestGetParticipants (req, res, next) {
 function checkRequestGetParticipantsTeam (req, res, next) {
 	var isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
 	var params = {};
-	var query = Object.assign({}, defaultQueryGetParticipants);
-	var body = Object.assign({}, defaultBodyGetParticipants);
+	var query = JSON.parse(JSON.stringify(defaultQueryGetParticipants));
+	var body = JSON.parse(JSON.stringify(defaultBodyGetParticipants));
 
 	if (isAdminScope) {
 		if (!req.params.hasOwnProperty('id')) {
@@ -145,7 +148,8 @@ function checkRequestGetParticipantsTeam (req, res, next) {
 				req.body.filter.participant_medical_certificate_valid.forEach((value, index) => {
 					if (value.includes([participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_VALID.label,
 						participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.label,
-						participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_INVALID.label])) {
+						participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_INVALID.label,
+						participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_IN_REVIEW.label])) {
 						body.filter.participant_medical_certificate_valid.push(value);
 					}
 				});
@@ -175,8 +179,8 @@ function checkRequestGetParticipantsTeam (req, res, next) {
 /* The body check for the request GET /participants/:id */
 function checkRequestGetParticipant (req, res, next) {
 	var params = {};
-	var query = Object.assign({}, defaultQueryGetParticipants);
-	var body = Object.assign({}, defaultBodyGetParticipants);
+	var query = JSON.parse(JSON.stringify(defaultQueryGetParticipants));
+	var body = JSON.parse(JSON.stringify(defaultBodyGetParticipants));
 
 	if (req.params.hasOwnProperty('id')) {
 		params.id = req.params.id;
@@ -195,7 +199,8 @@ function checkRequestGetParticipant (req, res, next) {
 				req.body.filter.participant_medical_certificate_valid.forEach((value, index) => {
 					if (value.includes([participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_VALID.label,
 						participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.label,
-						participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_INVALID.label])) {
+						participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_INVALID.label,
+						participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_IN_REVIEW.label])) {
 						body.filter.participant_medical_certificate_valid.push(value);
 					}
 				});
@@ -225,7 +230,26 @@ function checkRequestGetParticipant (req, res, next) {
 function checkRequestGetParticipantCertificate (req, res, next) {
 	var isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
 	var params = {};
-	var body = Object.assign({}, defaultBodyGetParticipants);
+	var body = JSON.parse(JSON.stringify(defaultBodyGetParticipants));
+
+	if (isAdminScope) {
+		if (!req.params.hasOwnProperty('id')) {
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		} else {
+			params.id = req.params.id
+		}
+	} else {
+		params.id = req.user.team.team_id;
+	}
+
+	return {params: params, query: null, body: body};
+}
+
+/* The body check for the request GET /participants/student-certificate/:id */
+function checkRequestGetParticipantCertificateStudent (req, res, next) {
+	var isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	var params = {};
+	var body = JSON.parse(JSON.stringify(defaultBodyGetParticipants));
 
 	if (isAdminScope) {
 		if (!req.params.hasOwnProperty('id')) {
@@ -244,7 +268,7 @@ function checkRequestGetParticipantCertificate (req, res, next) {
 function checkRequestPostParticipant (req, res, next) {
 	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
 	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
-	var body = Object.assign({}, defaultBodyPostParticipant);
+	var body = JSON.parse(JSON.stringify(defaultBodyPostParticipant));
 
 	if (req.body.hasOwnProperty('participant')) {
 		if (req.body.participant.hasOwnProperty('participant_name')) {
@@ -333,7 +357,7 @@ function checkRequestPostParticipant (req, res, next) {
 
 		}
 		if (req.body.participant.hasOwnProperty('participant_medical_certificate_valid') && isAdminScope) {
-			if (utils.isInCorrectExtension(req.body.participant.participant_medical_certificate_valid)) {
+			if (req.body.participant.participant_medical_certificate_valid >= 0) {
 				body.participant.participant_medical_certificate_valid = req.body.participant.participant_medical_certificate_valid
 			} else {
 				return next(apiErrors.PARTICIPANT_CERTIFICATE_FORMAT_INVALID, req, res);
@@ -341,17 +365,18 @@ function checkRequestPostParticipant (req, res, next) {
 		} else {
 			body.participant.participant_medical_certificate_valid = participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.value;
 		}
+		if (req.body.participant.hasOwnProperty('participant_student_certificate_valid') && isAdminScope) {
+			if (req.body.participant.participant_student_certificate_valid >= 0) {
+				body.participant.participant_student_certificate_valid = req.body.participant.participant_student_certificate_valid
+			} else {
+				return next(apiErrors.PARTICIPANT_CERTIFICATE_FORMAT_INVALID, req, res);
+			}
+		} else {
+			body.participant.participant_student_certificate_valid = participantCertificateValidityValueMatch.MEDICAL_CERTIFICATE_NOT_RECEIVED.value;
+		}
 		if (req.body.participant.hasOwnProperty('participant_message') && isAdminScope) {
 			if (req.body.participant.participant_message) {
 				body.participant.participant_message = req.body.participant.participant_message
-			}
-		}
-		if (req.body.participant.hasOwnProperty('participant_medical_certificate')) {
-			if (req.body.participant.participant_medical_certificate != null) {
-				body.participant.participant_medical_certificate = req.body.participant.participant_medical_certificate;
-				body.participant.participant_medical_certificate_file = '';
-			} else {
-				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
 	} else {
@@ -365,7 +390,7 @@ function checkRequestPostParticipant (req, res, next) {
 function checkRequestPutParticipant (req, res, next) {
 	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
 	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
-	var body = Object.assign({}, defaultBodyPutParticipant);
+	var body = JSON.parse(JSON.stringify(defaultBodyPutParticipant));
 	var params = {};
 
 	if (req.params.hasOwnProperty('id')) {
@@ -445,17 +470,16 @@ function checkRequestPutParticipant (req, res, next) {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
-		if (req.body.participant.hasOwnProperty('participant_medical_certificate')) {
-			if (req.body.participant.participant_medical_certificate != null) {
-				body.participant.participant_medical_certificate = req.body.participant.participant_medical_certificate;
-				body.participant.participant_medical_certificate_file = '';
+		if (req.body.participant.hasOwnProperty('participant_medical_certificate_valid') && isAdminScope) {
+			if (req.body.participant.participant_medical_certificate_valid != null) {
+				body.participant.participant_medical_certificate_valid = req.body.participant.participant_medical_certificate_valid
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
 		}
-		if (req.body.participant.hasOwnProperty('participant_medical_certificate_valid') && isAdminScope) {
-			if (req.body.participant.participant_medical_certificate_valid != null) {
-				body.participant.participant_medical_certificate_valid = req.body.participant.participant_medical_certificate_valid
+		if (req.body.participant.hasOwnProperty('participant_student_certificate_valid') && isAdminScope) {
+			if (req.body.participant.participant_student_certificate_valid != null) {
+				body.participant.participant_student_certificate_valid = req.body.participant.participant_student_certificate_valid
 			} else {
 				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
 			}
@@ -469,6 +493,128 @@ function checkRequestPutParticipant (req, res, next) {
 		}
 	} else {
 		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+	}
+
+	return {params: params, query: null, body: body};
+}
+
+/* The body check for the request PUT /participants/medical-certificate/:id */
+function checkRequestPutParticipantCertificate (req, res, next) {
+	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	var body = JSON.parse(JSON.stringify(defaultBodyPutParticipant));
+	var params = {};
+
+	if (req.params.hasOwnProperty('id')) {
+		params.id = req.params.id;
+	} else {
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+	}
+
+	if (req.is("multipart/form-data")) {
+		if (req.files.hasOwnProperty('participant')) {
+			if (req.files.participant.hasOwnProperty('participant_medical_certificate')) {
+				var pathOfCertificateFile = "public/certificates/medical_certificate_" + params.id + '.' + req.files.participant_medical_certificate.name.split('.').pop()
+				fs.writeFile(pathOfCertificateFile, Buffer.from(req.files.participant_medical_certificate.data), function (err) {
+					if (err) {
+						return next(apiErrors.PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT, req, res);
+					} else if (utils.isBase64InCorrectExtension(base64encode(req.body.participant.participant_medical_certificate))) {
+						body.participant.participant_medical_certificate = base64encode(req.body.participant.participant_medical_certificate);
+						body.participant.participant_medical_certificate_file = pathOfCertificateFile;
+						body.participant.participant_medical_certificate_valid = 3;
+					} else {
+						return next(apiErrors.PARTICIPANT_CERTIFICATE_FORMAT_INVALID, req, res);
+					}
+				});
+			} else {
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+	} else if (req.is("application/json")) {
+		if (req.body.hasOwnProperty('participant')) {
+			if (req.body.participant.hasOwnProperty('participant_medical_certificate')) {
+				if (req.body.participant.participant_medical_certificate) {
+					if (validDataUrl(req.body.participant.participant_medical_certificate)
+						&& utils.isBase64InCorrectExtension(req.body.participant.participant_medical_certificate.split(',')[1])) {
+						body.participant.participant_medical_certificate = req.body.participant.participant_medical_certificate;
+						body.participant.participant_medical_certificate_valid = 3;
+					} else {
+						return next(apiErrors.PARTICIPANT_CERTIFICATE_FORMAT_INVALID, req, res);
+					}
+				} else {
+					return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				}
+			} else {
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+	} else {
+		return next(apiErrors.GENERIC_ERROR_REQUEST_CONTENT_TYPE_ERROR, req, res);
+	}
+
+	return {params: params, query: null, body: body};
+}
+
+/* The body check for the request PUT /participants/student-certificate/:id */
+function checkRequestPutParticipantCertificateStudent (req, res, next) {
+	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	var body = JSON.parse(JSON.stringify(defaultBodyPutParticipant));
+	var params = {};
+
+	if (req.params.hasOwnProperty('id')) {
+		params.id = req.params.id;
+	} else {
+		return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+	}
+
+	if (req.is("multipart/form-data")) {
+		if (req.files.hasOwnProperty('participant')) {
+			if (req.files.participant.hasOwnProperty('participant_student_certificate')) {
+				var pathOfCertificateFile = "public/certificates/student_certificate_" + params.id + '.' + req.files.participant_student_certificate.name.split('.').pop()
+				fs.writeFile(pathOfCertificateFile, Buffer.from(req.files.participant_student_certificate.data), function (err) {
+					if (err) {
+						return next(apiErrors.PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT, req, res);
+					} else if (utils.isBase64InCorrectExtension(base64encode(req.body.participant.participant_student_certificate))) {
+						body.participant.participant_student_certificate = base64encode(req.body.participant.participant_student_certificate);
+						body.participant.participant_student_certificate_file = pathOfCertificateFile;
+						body.participant.participant_student_certificate_valid = 3;
+					} else {
+						return next(apiErrors.PARTICIPANT_CERTIFICATE_FORMAT_INVALID, req, res);
+					}
+				});
+			} else {
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+	} else if (req.is("application/json")) {
+		if (req.body.hasOwnProperty('participant')) {
+			if (req.body.participant.hasOwnProperty('participant_student_certificate')) {
+				if (req.body.participant.participant_student_certificate) {
+					if (validDataUrl(req.body.participant.participant_student_certificate)
+						&& utils.isBase64InCorrectExtension(req.body.participant.participant_student_certificate.split(',')[1])) {
+						body.participant.participant_student_certificate = req.body.participant.participant_student_certificate;
+						body.participant.participant_student_certificate_valid = 3;
+					} else {
+						return next(apiErrors.PARTICIPANT_CERTIFICATE_FORMAT_INVALID, req, res);
+					}
+				} else {
+					return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+				}
+			} else {
+				return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+			}
+		} else {
+			return next(apiErrors.GENERIC_ERROR_REQUEST_FORMAT_ERROR, req, res);
+		}
+	} else {
+		return next(apiErrors.GENERIC_ERROR_REQUEST_CONTENT_TYPE_ERROR, req, res);
 	}
 
 	return {params: params, query: null, body: body};
@@ -489,7 +635,7 @@ function checkRequestDeleteParticipant (req, res, next) {
 function getDatabaseParameterGetParticipants (params, query, body){
 	var parameters = {
 		where: {},
-		attributes: { exclude: ['participant_medical_certificate'] },
+		attributes: { exclude: ['participant_medical_certificate', 'participant_student_certificate' ] },
 		include: []
 	};
 
@@ -505,7 +651,7 @@ function getDatabaseParameterGetParticipants (params, query, body){
 function getDatabaseParameterGetParticipantsTeam (params, query, body){
 	var parameters = {
 		where: {},
-		attributes: { exclude: ['participant_medical_certificate'] },
+		attributes: { exclude: ['participant_medical_certificate', 'participant_student_certificate' ] },
 		include: []
 	};
 	if (params.id) {
@@ -524,7 +670,7 @@ function getDatabaseParameterGetParticipantsTeam (params, query, body){
 function getDatabaseParameterGetParticipant (params, query, body){
 	var parameters = {
 		where: {},
-		attributes: { exclude: ['participant_medical_certificate' ] },
+		attributes: { exclude: ['participant_medical_certificate', 'participant_student_certificate' ] },
 		include: []
 	};
 
@@ -553,6 +699,19 @@ function getDatabaseParameterGetParticipantCertificate (params, query, body){
 	return parameters;
 }
 
+/* The database SQL request parameters for the request GET /participants/student-certificate/:id */
+function getDatabaseParameterGetParticipantCertificateStudent (params, query, body){
+	var parameters = {
+		where: {},
+		attributes: ['participant_student_certificate']
+	};
+	if (params.id) {
+		parameters.where.participant_id = params.id;
+	}
+
+	return parameters;
+}
+
 /* The database SQL request parameters for the request POST /participants */
 function getDatabaseParameterPostParticipant (params, query, body){
 	return body.participant;
@@ -563,6 +722,16 @@ function getDatabaseParameterPutParticipant (params, query, body){
 	return body.participant;
 }
 
+/* The database SQL request parameters for the request PUT /participants/medical-certificate/:id */
+function getDatabaseParameterPutParticipantCertificate (params, query, body){
+	return body.participant;
+}
+
+/* The database SQL request parameters for the request PUT /participants/student-certificate/:id */
+function getDatabaseParameterPutParticipantCertificateStudent (params, query, body){
+	return body.participant;
+}
+
 /* The database SQL request parameters for the request DELETE /participants/:id */
 function getDatabaseParameterDeleteParticipant (params, query, body){
 	var parameters = {
@@ -570,11 +739,6 @@ function getDatabaseParameterDeleteParticipant (params, query, body){
 	};
 	return parameters;
 }
-
-/* The function that will record the medical certificate in a file and database */
-function recordMedicalCertificateBase64Encoded(file) {
-	// Not implemented
-};
 
 module.exports = {
 	participantPaymentValidityValueMatch: participantPaymentValidityValueMatch,
@@ -587,9 +751,15 @@ module.exports = {
 	getDatabaseParameterGetParticipant: getDatabaseParameterGetParticipant,
 	checkRequestGetParticipantCertificate: checkRequestGetParticipantCertificate,
 	getDatabaseParameterGetParticipantCertificate: getDatabaseParameterGetParticipantCertificate,
+	checkRequestGetParticipantCertificateStudent:checkRequestGetParticipantCertificateStudent,
+	getDatabaseParameterGetParticipantCertificateStudent: getDatabaseParameterGetParticipantCertificateStudent,
 	checkRequestPostParticipant: checkRequestPostParticipant,
 	getDatabaseParameterPostParticipant: getDatabaseParameterPostParticipant,
 	checkRequestPutParticipant: checkRequestPutParticipant,
+	getDatabaseParameterPutParticipantCertificate: getDatabaseParameterPutParticipantCertificate,
+	checkRequestPutParticipantCertificateStudent: checkRequestPutParticipantCertificateStudent,
+	getDatabaseParameterPutParticipantCertificateStudent: getDatabaseParameterPutParticipantCertificateStudent,
+	checkRequestPutParticipantCertificate: checkRequestPutParticipantCertificate,
 	getDatabaseParameterPutParticipant: getDatabaseParameterPutParticipant,
 	checkRequestDeleteParticipant: checkRequestDeleteParticipant,
 	getDatabaseParameterDeleteParticipant: getDatabaseParameterDeleteParticipant
