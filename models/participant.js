@@ -45,6 +45,19 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING(128),
         allowNull: true
     },
+    participant_student_certificate: {
+      type: DataTypes.TEXT('medium'),
+      allowNull: true
+    },
+    participant_student_certificate_valid: {
+      type: DataTypes.INTEGER(4),
+      allowNull: true,
+      defaultValue: '0'
+    },
+    participant_student_certificate_file: {
+      type: DataTypes.STRING(128),
+      allowNull: true
+    },
     participant_payment: {
       type: DataTypes.INTEGER(4),
       allowNull: true,

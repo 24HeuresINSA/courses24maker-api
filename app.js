@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
+var fileUpload = require('express-fileupload');
 var passport = require('passport');
 var cors = require('cors');
 var bodyParser = require('body-parser');
@@ -47,6 +48,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
 	secret: "key"
+}));
+app.use(fileUpload({
+	limits: { fileSize: 50 * 1024 * 1024 },
 }));
 
 app.use(bodyParser.json({limit: '50mb'}));

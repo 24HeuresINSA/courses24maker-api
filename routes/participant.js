@@ -45,8 +45,10 @@ Participant.belongsTo(Team, {as: 'participant_team', foreignKey: 'participant_te
  * @apiSuccess (Sucess 200) {String} participants.participant_birthdate The birthdate of the participant (YYYY-MM-DD)
  * @apiSuccess (Sucess 200) {String} participants.participant_team_id The uuid of the associate team
  * @apiSuccess (Sucess 200) {Boolean} participants.participant_student If the participant is a student (1) or not (0)
- * @apiSuccess (Sucess 200) {Boolean} participants.participant_medical_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
- * @apiSuccess (Sucess 200) {String} participants.participant_medical_certificate_file The path file of the medical certificate
+ * @apiSuccess (Sucess 200) {Number} participant.participant_medical_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
+ * @apiSuccess (Sucess 200) {String} participant.participant_medical_certificate_file The path file of the medical certificate
+ * @apiSuccess (Sucess 200) {Number} participant.participant_student_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
+ * @apiSuccess (Sucess 200) {String} participant.participant_student_certificate_file The path file of the student certificate
  * @apiSuccess (Sucess 200) {Boolean} participants.participant_payment If the participant has already paid (1) or not (0)
  * @apiSuccess (Sucess 200) {String} participants.participant_tee_shirt_size The size for the tee shirt of the participant
  * @apiSuccess (Sucess 200) {String} participants.participant_comment The comment the participant can send
@@ -70,9 +72,11 @@ Participant.belongsTo(Team, {as: 'participant_team', foreignKey: 'participant_te
  * @apiSuccess (Sucess 200) {String} participant.participant_surname The surname of the participant
  * @apiSuccess (Sucess 200) {String} participant.participant_birthdate The birthdate of the participant (YYYY-MM-DD)
  * @apiSuccess (Sucess 200) {String} participant.participant_team_id The uuid of the associate team
- * @apiSuccess (Sucess 200) {Boolean} participant.participant_student If the participant is a student (1) or not (0)
- * @apiSuccess (Sucess 200) {Boolean} participant.participant_medical_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
+ * @apiSuccess (Sucess 200) {Number} participant.participant_medical_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
  * @apiSuccess (Sucess 200) {String} participant.participant_medical_certificate_file The path file of the medical certificate
+ * @apiSuccess (Sucess 200) {Number} participant.participant_student_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
+ * @apiSuccess (Sucess 200) {String} participant.participant_student_certificate_file The path file of the student certificate
+ * @apiSuccess (Sucess 200) {Boolean} participant.participant_student If the participant is a student (1) or not (0)
  * @apiSuccess (Sucess 200) {Boolean} participant.participant_payment If the participant has already paid (1) or not (0)
  * @apiSuccess (Sucess 200) {String} participant.participant_tee_shirt_size The size for the tee shirt of the participant
  * @apiSuccess (Sucess 200) {String} participant.participant_comment The comment the participant can send
@@ -198,7 +202,7 @@ router.get('/:id', authenticationUser, function(req, res, next) {
 
 /**
  * @apiGroup PARTICIPANT
- * @api {GET} /participants/medical-certificate/:id Get a the medical certificate of a participant
+ * @api {GET} /participants/medical-certificate/:id Get the medical certificate of a participant
  * @apiDescription Retrieve the medical certificate file Base64 encoded of a participant
  * @apiUse Header
  * @apiParam (Path) {String} id ``Mandatory``The uuid of the participant for which you want retrieve the medical certificate
@@ -206,6 +210,7 @@ router.get('/:id', authenticationUser, function(req, res, next) {
  * @apiUse GenericAuthenticationError
  * @apiError (Error 4xx) {404} PARTICIPANT_NOT_FOUND No participant has been found
  * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT An internal error occurs
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT An internal error occurs
  */
 router.get('/medical-certificate/:id', authenticationUser, function(req, res, next) {
 	var isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
@@ -234,6 +239,139 @@ router.get('/medical-certificate/:id', authenticationUser, function(req, res, ne
 
 /**
  * @apiGroup PARTICIPANT
+ * @api {PUT} /participants/medical-certificate/:id Update the medical certificate of a participant
+ * @apiDescription Update the medical certificate file Base64 encoded of a participant
+ * @apiUse Header
+ * @apiParam (Path) {String} id ``Mandatory`` The uuid of the participant to update
+ * @apiParam (Body) {Object} The participant object with the information to update
+ * @apiParam (Body) {Boolean} participant.participant_medical_certificate The certificate file in the .jpg, .png or .pdf extension and base64 encoded
+ * @apiSuccess (Sucess 204) (Sucess 204) - No content
+ * @apiUse GenericAuthenticationError
+ * @apiError (Error 4xx) {400} GENERIC_ERROR_REQUEST_FORMAT_ERROR Your request (body or query param) is wrong
+ * @apiError (Error 4xx) {404} PARTICIPANT_NOT_FOUND The participant has not be found in the database
+ * @apiError (Error 4xx) {415} PARTICIPANT_CERTIFICATE_FORMAT_INVALID The format of the file is not supported (only pdf, jpg, png)
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT An internal error occurs
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT An internal error occurs
+ */
+router.put('/medical-certificate/:id', authenticationUser, function(req, res, next) {
+	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	const request = service_participant.checkRequestPutParticipantCertificate(req, res, next);
+	var databaseParameters = service_participant.getDatabaseParameterPutParticipantCertificate(request.params, request.query, request.body);
+
+	// STEP 1 - Retrieve the participant to update
+	Participant.findOne({ where: { participant_id: request.params.id} })
+		.then(participant => {
+			// STEP 2 - Check if the participant to update exists
+			if (!participant) {
+				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
+			} else {
+				// STEP 3 - Check if the participant can be update by the user or not
+				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
+					participant.update(databaseParameters)
+						.then(participant2 => {
+							res.status(204).end();
+						})
+						.catch( err =>{
+							next(service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT, err), req, res);
+						});
+				} else {
+					next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
+				}
+			}
+		})
+		.catch( err =>{
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT, err), req, res);
+		});
+});
+
+/**
+ * @apiGroup PARTICIPANT
+ * @api {GET} /participants/student-certificate/:id Get the student certificate of a participant
+ * @apiDescription Retrieve the student certificate file Base64 encoded of a participant
+ * @apiUse Header
+ * @apiParam (Path) {String} id ``Mandatory``The uuid of the participant for which you want retrieve the medical certificate
+ * @apiSuccess (Sucess 200) {String} participant_student_certificate The medical certificate file Base64 encoded
+ * @apiUse GenericAuthenticationError
+ * @apiError (Error 4xx) {404} PARTICIPANT_NOT_FOUND No participant has been found
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT An internal error occurs
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT An internal error occurs
+ */
+router.get('/student-certificate/:id', authenticationUser, function(req, res, next) {
+	var isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	var isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	const request = service_participant.checkRequestGetParticipantCertificateStudent(req, res, next);
+	var databaseParameters = service_participant.getDatabaseParameterGetParticipantCertificateStudent(request.params, request.query, request.body);
+
+	Participant.findOne(databaseParameters)
+		.then(participant => {
+			if (participant) {
+				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
+					res.status(200);
+					res.send(utils.modelToJSON(participant));
+				} else {
+					next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
+				}
+			} else {
+				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
+			}
+		})
+		.catch( err => {
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT, err), req, res);;
+		});
+
+});
+
+/**
+ * @apiGroup PARTICIPANT
+ * @api {PUT} /participants/student-certificate/:id Update the student certificate of a participant
+ * @apiDescription Update the student certificate file Base64 encoded of a participant
+ * @apiUse Header
+ * @apiParam (Path) {String} id ``Mandatory`` The uuid of the participant to update
+ * @apiParam (Body) {Object} The participant object with the information to update
+ * @apiParam (Body) {Boolean} participant.participant_student_certificate The certificate file in the .jpg, .png or .pdf extension and base64 encoded
+ * @apiSuccess (Sucess 204) (Sucess 204) - No content
+ * @apiUse GenericAuthenticationError
+ * @apiError (Error 4xx) {400} GENERIC_ERROR_REQUEST_FORMAT_ERROR Your request (body or query param) is wrong
+ * @apiError (Error 4xx) {404} PARTICIPANT_NOT_FOUND The participant has not be found in the database
+ * @apiError (Error 4xx) {415} PARTICIPANT_CERTIFICATE_FORMAT_INVALID The format of the file is not supported (only pdf, jpg, png)
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT An internal error occurs
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT An internal error occurs
+ */
+router.put('/student-certificate/:id', authenticationUser, function(req, res, next) {
+	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	const request = service_participant.checkRequestPutParticipantCertificateStudent(req, res, next);
+	var databaseParameters = service_participant.getDatabaseParameterPutParticipantCertificateStudent(request.params, request.query, request.body);
+
+	// STEP 1 - Retrieve the participant to update
+	Participant.findOne({ where: { participant_id: request.params.id} })
+		.then(participant => {
+			// STEP 2 - Check if the participant to update exists
+			if (!participant) {
+				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
+			} else {
+				// STEP 3 - Check if the participant can be update by the user or not
+				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
+					participant.update(databaseParameters)
+						.then(participant2 => {
+							res.status(204).end();
+						})
+						.catch( err =>{
+							next(service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT, err), req, res);
+						});
+				} else {
+					next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
+				}
+			}
+		})
+		.catch( err =>{
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_CHECK_PARTICIPANT, err), req, res);
+		});
+});
+
+/**
+ * @apiGroup PARTICIPANT
  * @api {POST} /participants/ Create a participant
  * @apiDescription Create or register a participant
  * @apiUse Header
@@ -242,11 +380,14 @@ router.get('/medical-certificate/:id', authenticationUser, function(req, res, ne
  * @apiParam (Body) {String} participant.participant_surname ``Mandatory`` The surname of the participant
  * @apiParam (Body) {String} participant.participant_birthdate ``Mandatory`` The birthdate of the participant (YYYY-MM-DD)
  * @apiParam (Body) {String} participant.participant_team_id The uuid of the associate team
- * @apiParam (Body) {Boolean} participant.participant_student If the participant is a student (1) or not (0)
+ * @apiParam (Body) {Number} participant.participant_student If the participant is a student (1) or not (0)
  * @apiParam (Body) {String} participant.participant_medical_certificate The certificate file in the .jpg, .png or .pdf extension and base64 encoded
- * @apiParam (Body) {Boolean} participant.participant_medical_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
+ * @apiParam (Body) {Number} participant.participant_medical_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
  * @apiParam (Body) {String} participant.participant_medical_certificate_file The path file of the medical certificate
- * @apiParam (Body) {Boolean} participant.participant_payment If the participant has already paid (1) or not (0)
+ * @apiParam (Body) {String} participant.participant_student_certificate The certificate file in the .jpg, .png or .pdf extension and base64 encoded
+ * @apiParam (Body) {Number} participant.participant_student_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
+ * @apiParam (Body) {String} participant.participant_student_certificate_file The path file of the student certificate
+ * @apiParam (Body) {Number} participant.participant_payment If the participant has already paid (1) or not (0)
  * @apiParam (Body) {String} participant.participant_tee_shirt_size The size for the tee shirt of the participant
  * @apiParam (Body) {String} participant.participant_comment The comment the participant can send
  * @apiParam (Body) {String} participant.participant_message The message send by the admin to the participant
@@ -299,11 +440,14 @@ router.post('/', authenticationUser, function(req, res, next) {
  * @apiParam (Body) {String} participant.participant_surname The surname of the participant
  * @apiParam (Body) {String} participant.participant_birthdate The birthdate of the participant (YYYY-MM-DD)
  * @apiParam (Body) {String} participant.participant_team_id The uuid of the associate team
- * @apiParam (Body) {Boolean} participant.participant_student If the participant is a student (1) or not (0)
- * @apiParam (Body) {Boolean} participant.participant_medical_certificate The certificate file in the .jpg, .png or .pdf extension and base64 encoded
- * @apiParam (Body) {Boolean} participant.participant_medical_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
+ * @apiParam (Body) {Number} participant.participant_student If the participant is a student (1) or not (0)
+ * @apiParam (Body) {String} participant.participant_medical_certificate The certificate file in the .jpg, .png or .pdf extension and base64 encoded
+ * @apiParam (Body) {Number} participant.participant_medical_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
  * @apiParam (Body) {String} participant.participant_medical_certificate_file The path file of the medical certificate
- * @apiParam (Body) {Boolean} participant.participant_payment If the participant has already paid (1) or not (0)
+ * @apiParam (Body) {String} participant.participant_student_certificate The certificate file in the .jpg, .png or .pdf extension and base64 encoded
+ * @apiParam (Body) {Number} participant.participant_student_certificate_valid If the participant has uploaded a valid certificate (1) or not (0)
+ * @apiParam (Body) {String} participant.participant_student_certificate_file The path file of the student certificate
+ * @apiParam (Body) {Number} participant.participant_payment If the participant has already paid (1) or not (0)
  * @apiParam (Body) {String} participant.participant_tee_shirt_size The size for the tee shirt of the participant
  * @apiParam (Body) {String} participant.participant_comment The comment the participant can send
  * @apiParam (Body) {String} participant.participant_message The message send by the admin to the participant

@@ -60,7 +60,8 @@ router.post('/login', function(req, res, next) {
 						else {
 							res.status(200);
 							res.send({
-								"jwt": service_authentication.buildJwt(config_authentication["user-jwt-audience"], team.team_id, config_authentication["user-jwt-scope"])
+								"jwt": service_authentication.buildJwt(config_authentication["user-jwt-audience"], team.team_id, config_authentication["user-jwt-scope"]),
+								"team_id": team.team_id
 							});
 						}
 					}
@@ -87,7 +88,7 @@ router.post('/login', function(req, res, next) {
  * @apiParam (Body) {Object} team The information of the team to create
  * @apiParam (Body) {String} team.team_name ``Mandatory`` The name of the team to create
  * @apiParam (Body) {String} team.team_password ``Mandatory`` The password of the team to create
- * @apiParam (Body) {String} team.category_id ``Mandatory`` The uuid of the category associated to the team to create
+ * @apiParam (Body) {String} team.team_category_id ``Mandatory`` The uuid of the category associated to the team to create
  * @apiParam (Body) {Object} team_manager The information of the manager of the team to create
  * @apiParam (Body) {String} team_manager.participant_name ``Mandatory`` The name of the manager of the team to create
  * @apiParam (Body) {String} team_manager.participant_surname ``Mandatory`` The surname of the manager of the team to create
