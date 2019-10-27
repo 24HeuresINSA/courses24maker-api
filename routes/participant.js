@@ -239,6 +239,49 @@ router.get('/medical-certificate/:id', authenticationUser, function(req, res, ne
 
 /**
  * @apiGroup PARTICIPANT
+ * @api {GET} /participants/medical-certificate-file/:id Get the medical certificate of a participant
+ * @apiDescription Retrieve the medical certificate file not encoded of a participant
+ * @apiUse Header
+ * @apiParam (Path) {String} id ``Mandatory``The uuid of the participant for which you want retrieve the medical certificate
+ * @apiSuccess (Sucess 200) {File} The medical certificate file not encoded
+ * @apiUse GenericAuthenticationError
+ * @apiError (Error 4xx) {404} PARTICIPANT_NOT_FOUND No participant has been found
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT An internal error occurs
+ */
+router.get('/medical-certificate-file/:id', authenticationUser, function(req, res, next) {
+	var isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	var isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	const request = service_participant.checkRequestGetParticipantCertificateFile(req, res, next);
+	var databaseParameters = service_participant.getDatabaseParameterGetParticipantCertificateFile(request.params, request.query, request.body);
+
+	Participant.findOne(databaseParameters)
+		.then(participant => {
+			if (participant) {
+				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
+					if (participant.participant_medical_certificate_file) {
+						res.sendFile(participant.participant_medical_certificate_file, {root: "documents/certificates/"}, function (err) {
+							res.status(200);
+							if (err) {
+								next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT, err), req, res);
+							}
+						});
+					} else {
+						next(apiErrors.PARTICIPANT_CERTIFICATE_NOT_FOUND, req, res);
+					}
+				} else {
+					next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
+				}
+			} else {
+				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
+			}
+		})
+		.catch( err => {
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT, err), req, res);;
+		});
+});
+
+/**
+ * @apiGroup PARTICIPANT
  * @api {PUT} /participants/medical-certificate/:id Update the medical certificate of a participant
  * @apiDescription Update the medical certificate file Base64 encoded of a participant
  * @apiUse Header
@@ -320,6 +363,45 @@ router.get('/student-certificate/:id', authenticationUser, function(req, res, ne
 			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT, err), req, res);;
 		});
 
+});
+
+/**
+ * @apiGroup PARTICIPANT
+ * @api {GET} /participants/student-certificate-file/:id Get the student certificate of a participant
+ * @apiDescription Retrieve the student certificate file not encoded of a participant
+ * @apiUse Header
+ * @apiParam (Path) {String} id ``Mandatory``The uuid of the participant for which you want retrieve the student certificate
+ * @apiSuccess (Sucess 200) {File} The student certificate file not encoded
+ * @apiUse GenericAuthenticationError
+ * @apiError (Error 4xx) {404} PARTICIPANT_NOT_FOUND No participant has been found
+ * @apiError (Error 5xx) {500} PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT An internal error occurs
+ */
+router.get('/student-certificate-file/:id', authenticationUser, function(req, res, next) {
+	var isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
+	var isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
+	const request = service_participant.checkRequestGetParticipantCertificateStudentFile(req, res, next);
+	var databaseParameters = service_participant.getDatabaseParameterGetParticipantCertificateStudentFile(request.params, request.query, request.body);
+
+	Participant.findOne(databaseParameters)
+		.then(participant => {
+			if (participant) {
+				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
+					res.status(200);
+					res.sendFile(participant.participant_student_certificate_file, {root: "documents/certificates/"},function (err) {
+						if (err) {
+							next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT, err), req, res);
+						}
+					});
+				} else {
+					next(apiErrors.AUTHENTICATION_ERROR_FORBIDDEN, req, res);
+				}
+			} else {
+				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
+			}
+		})
+		.catch( err => {
+			next(new service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_GET_PARTICIPANT, err), req, res);;
+		});
 });
 
 /**

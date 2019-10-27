@@ -26,6 +26,8 @@ var Participant = sequelize.import('../models/participant');
  * @api {POST} /authentication/login Login and get the jwt
  * @apiDescription Login the api to get the jwt
  * @apiSuccess (Sucess 200) {String} jwt The jwt to use as a header bearer to request this api
+ * @apiSuccess (Sucess 200) {String} user The user name
+ * @apiSuccess (Sucess 200) {Boolean} isAdmin If the user is admin
  * @apiParam (Body) {String} user ``Mandatory`` The user (name of the team or admin)
  * @apiParam (Body) {String} password ``Mandatory`` The password of the team or of the admin account
  * @apiError (Error 4xx) {400} AUTHENTICATION_ERROR_BAD_REQUEST Your request is wrong
@@ -41,7 +43,9 @@ router.post('/login', function(req, res, next) {
 		if (req.body.user == config_authentication["admin-login"] && req.body.password == config_authentication["admin-password"]) {
 			res.status(200);
 			res.send({
-				"jwt": service_authentication.buildJwt(config_authentication["admin-jwt-audience"], config_authentication["admin-jwt-subject"], config_authentication["admin-jwt-scope"])
+				"jwt": service_authentication.buildJwt(config_authentication["admin-jwt-audience"], config_authentication["admin-jwt-subject"], config_authentication["admin-jwt-scope"]),
+				"user": "admin",
+				"isAdmin": true,
 			});
 		// If classic user authentication
 		}
@@ -61,7 +65,9 @@ router.post('/login', function(req, res, next) {
 							res.status(200);
 							res.send({
 								"jwt": service_authentication.buildJwt(config_authentication["user-jwt-audience"], team.team_id, config_authentication["user-jwt-scope"]),
-								"team_id": team.team_id
+								"user": req.body.user,
+								"team_id": team.team_id,
+								"isAdmin": false
 							});
 						}
 					}
