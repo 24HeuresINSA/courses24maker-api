@@ -1,5 +1,7 @@
 config/**/config-authentication.json
 config/**/config-database.json
+config/**/*.pem
+config/**/*.cert
 node_modules/
 documents/
 .idea/

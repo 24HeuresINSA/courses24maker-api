@@ -23,10 +23,12 @@ var statisticsRouter = require('./routes/statistics');
 var app = express();
 var router = express.Router();
 
-/* https.createServer({
-	key: fs.readFileSync('./config/key.pem'),
-	cert: fs.readFileSync('./config/cert.pem')
-}, app).listen(3011); */
+if (process.argv[2] == "prod") {
+    https.createServer({
+        key: fs.readFileSync('./config/key.pem'),
+        cert: fs.readFileSync('./config/cert.pem')
+    }, app).listen(4443);
+}
 
 //------------------------------ All required modules from Planizi repository -----------------------------------
 var authenticationConfig = require('./config/config-authentication');

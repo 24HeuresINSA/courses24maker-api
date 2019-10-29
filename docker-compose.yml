@@ -23,7 +23,8 @@ services:
     depends_on:
       - courses24maker-database-service
     ports:
-      - 3020:8080 #Replace the first number by the port you want the api can be called can be called outside docker containers
+      - 3020:8080 #Replace the first number by the port you want the api can be called outside docker containers
+      - 3022:4443 #Replace the first number by the port you want the api can be called outside docker containers in https
     networks:
       courses24maker-network:
         aliases:
