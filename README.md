@@ -8,7 +8,15 @@ their registration and so on.
 The API project is developped with **NodeJS** and Express module.  
 The database used is **MySQL** with Sequelize module as ORM.
 
-### Set up your development environment
+### In production environment
+- [ ] Configure the file ``config/config-database-dev.json`` and remove the extension ``-dev``. Fill the missing fields as user, password of mysql...  
+- [ ] Dowload `docker` and `docker-compose` on your computer
+- [ ] Create the docker network for inter container communication **`docker network create courses24maker-network`**
+- [ ] Customize the `docker-compose.yml` (not mandatory, only if you want set the ports for example)
+- [ ] In the current folder where is located `docker-compose.yml` launch **`docker-compose up`**.
+Two containers are lauched (the database and the api server). Now, the api server is listening on the port 3020 (unless you have changed it in the `docker-compose.yml` file).
+
+### In development environment
 ##### Dowload NodeJS and the project
 - [ ] Dowload and open your IDE as IntelliJ or Webstorm (optionally)  
 - [ ] If not yet, dowload **NodeJS** and **npm**, then update your PATH variable.\
@@ -24,15 +32,15 @@ It's mandatory for the authentication process of the application
 
 ##### Provision the database
 - [ ] Dowload MySQL Server (and optionally MySQL Workbench for the GUI).  
-- [ ] Import the latest database dump (.sql) available in ***./database_dump/*** directory.  
-  `mysql -p -u [user] [database] < courses24maker_database_dump_[date].sql`  
+- [ ] Import the latest database dump (.sql) available in ***./db/*** directory.  
+  `mysql -p -u [user] [database] < ./db/database-script-creation.sql`  
   That will create and provision the database named *db_courses24maker_api*.  
 - [ ] Configure the file ``config/config-database-dev.json`` and remove the extension ``-dev``. Fill the missing fields as user, password of mysql...  
 - [ ] Start MySQL Server. It will listen on port 3306.  
 
 ##### Start the application
-- Lauch the application server with the command : `npm start`  
-- Open your browser and go at http://localhost:3020/
+- Lauch the application server with the command : `npm run start_dev`  
+- Open your browser and go at http://localhost:8080/
 
 
 ## Project Architecture
@@ -49,15 +57,18 @@ It's mandatory for the authentication process of the application
 |   |-- config-database.json (not commited)
 |   |-- config-database.js 
 |
-|-- database_dump                                               //To store dump of the db recurrently
-|   |-- courses24maker_database_dump_[date].sql
+|-- db                                                          //To store dump adn script of the db
+|   |-- database-script-creation.sql
+|
+|-- documents (not commited)                                    //To store documents of the api
+|   |-- database-script-creation.sql
 |
 |-- models                                                      //All models configuration to link database and code (Sequelize ORM code)
 |   |-- category.js
 |   |-- participant.js
 |   |-- team.js
 |
-|-- node_modules                                                //The default package that store all node modules
+|-- node_modules (not commited)                                 //The default package that store all node modules
 |   |-- ...
 |
 |-- routes                                                      //All routes defined to respond to incoming API requests
@@ -66,8 +77,17 @@ It's mandatory for the authentication process of the application
 |   |-- participant.js
 |   |-- team.js
 |
+|-- services                                                     //All services and necessary business code used by routes
+|   |-- service-authentication.js
+|   |-- service-category.js
+|   |-- ...
+|
+|
 |-- package-lock.json
 |-- package.json
+|-- docker-compose.yml                                          //The script to lauch all services of the api
+|-- Dockerfile-application                                      //The dockerfile to build the node-service in a docker container
+|-- Dockerfile-database                                         //The dockerfile to build the mysql-service in a docker container
 |-- app.js                                                      //The first entrypoint when the application server in lauched (after bin/www)
 |-- README.md
 ```` 

@@ -10,7 +10,9 @@ services:
     ports:
       - 33001:3306 #Replace the first number by the port you want the database can be called outside docker containers
     networks:
-      - courses24maker-network
+      courses24maker-network:
+        aliases:
+          - courses24maker-database-service
 
   courses24maker-api-service:
     build:
@@ -19,11 +21,14 @@ services:
     image: courses24maker-api
     container_name: courses24maker-api-container
     depends_on:
-      - database
+      - courses24maker-database-service
     ports:
       - 3020:8080 #Replace the first number by the port you want the api can be called can be called outside docker containers
     networks:
-      - courses24maker-network
+      courses24maker-network:
+        aliases:
+          - courses24maker-api-service
 
 networks:
   courses24maker-network:
+    external: true

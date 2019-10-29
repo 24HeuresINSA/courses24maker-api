@@ -8,6 +8,6 @@ ENV MYSQL_DATABASE db_courses24maker_api
 
 WORKDIR /home/courses24maker_database
 
-COPY ./config/config-database-script-creation.sql /docker-entrypoint-initdb.d
-COPY ./config/config-database-script-creation.sql .
+COPY db/database-script-creation.sql /docker-entrypoint-initdb.d
+COPY db/database-script-creation.sql .
 COPY ./config/config-database.json .
