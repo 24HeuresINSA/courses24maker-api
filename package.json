@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start_dev": "nodemon ./bin/www dev",
+    "start_prod": "nodemon ./bin/www prod"
   },
   "dependencies": {
     "apidoc": "^0.17.7",

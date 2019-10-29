@@ -1,0 +1,13 @@
+FROM mysql:5.7.28
+
+ENV MYSQL_ROOT_PASSWORD root
+ENV MYSQL_ALLOW_EMPTY_PASSWORD yes
+ENV MYSQL_USER courses24maker
+ENV MYSQL_PASSWORD password
+ENV MYSQL_DATABASE db_courses24maker_api
+
+WORKDIR /home/courses24maker_database
+
+COPY ./config/config-database-script-creation.sql /docker-entrypoint-initdb.d
+COPY ./config/config-database-script-creation.sql .
+COPY ./config/config-database.json .

@@ -1,0 +1,29 @@
+version: "3.3"
+services:
+
+  courses24maker-database-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-database
+    image: courses24maker-database
+    container_name: courses24maker-database-container
+    ports:
+      - 33001:3306 #Replace the first number by the port you want the database can be called outside docker containers
+    networks:
+      - courses24maker-network
+
+  courses24maker-api-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-application
+    image: courses24maker-api
+    container_name: courses24maker-api-container
+    depends_on:
+      - database
+    ports:
+      - 3020:8080 #Replace the first number by the port you want the api can be called can be called outside docker containers
+    networks:
+      - courses24maker-network
+
+networks:
+  courses24maker-network:
