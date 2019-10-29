@@ -600,7 +600,6 @@ function checkRequestPutParticipantCertificate (req, res, next) {
 						var pathOfCertificateFile = "documents/certificates/"+nameFile;
 						fs.writeFile(pathOfCertificateFile, req.body.participant.participant_medical_certificate.split(',')[1], {encoding: 'base64'}, function (err) {
 							if (err) {
-								console.log(err);
 								return next(apiErrors.PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT, req, res);
 							} else {
 								body.participant.participant_medical_certificate_file = nameFile;

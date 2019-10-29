@@ -10,6 +10,7 @@ The database used is **MySQL** with Sequelize module as ORM.
 
 ### In production environment
 - [ ] Configure the file ``config/config-database-dev.json`` and remove the extension ``-dev``. Fill the missing fields as user, password of mysql...  
+- [ ] Go to config directory ``cd ./config`` and generate certificate for https ``openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem``.  
 - [ ] Dowload `docker` and `docker-compose` on your computer
 - [ ] Create the docker network for inter container communication **`docker network create courses24maker-network`**
 - [ ] Customize the `docker-compose.yml` (not mandatory, only if you want set the ports for example)
