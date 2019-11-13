@@ -61,6 +61,10 @@ const apiErrors = {
 	PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT: new ApiErrorObject(500, "PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT", "INTERNAL_ERROR", { "fr": "Problème pour mettre à jour les informations du participant", "en": "Problem to update participant information"}),
 	PARTICIPANT_ERROR_INTERNAL_DELETE_PARTICIPANT: new ApiErrorObject(500, "PARTICIPANT_ERROR_INTERNAL_DELETE_PARTICIPANT", "INTERNAL_ERROR", { "fr": "Problème pour supprimer le participant", "en": "Problem to remove the participant"}),
 
+	// Errors related to Statistics API
+	SATISTICS_ERROR_INTERNAL_GET_STATISTICS: new ApiErrorObject(500, "SATISTICS_ERROR_INTERNAL_GET_STATISTICS", "INTERNAL_ERROR", { "fr": "Problème pour calculer les statistiques", "en": "Problem to compute statistics"}),
+	SATISTICS_ERROR_INTERNAL_EXPORT_DATABASE: new ApiErrorObject(500, "SATISTICS_ERROR_INTERNAL_EXPORT_DATABASE", "INTERNAL_ERROR", { "fr": "Problème pour exporter la base de données", "en": "Problem to export database"}),
+
 	// Generics Errors
 	GENERIC_ERROR_REQUEST_FORMAT_ERROR: new ApiErrorObject(400, "GENERIC_ERROR_REQUEST_FORMAT_ERROR", "BAD REQUEST", { "fr": "La requête est mal formée", "en": "The request is malformed"}),
 	GENERIC_ERROR_REQUEST_CONTENT_TYPE_ERROR: new ApiErrorObject(406, "GENERIC_ERROR_REQUEST_CONTENT_TYPE_ERROR", "NOT ACCEPTABLE", { "fr": "Le type de requète n'est pas supporté", "en": "The request type is unsupported"})
