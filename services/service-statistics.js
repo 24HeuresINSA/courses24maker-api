@@ -20,20 +20,38 @@ var Participant = sequelize.import('../models/participant');
 var Category = sequelize.import('../models/category');
 
 /* The database SQL request parameters for the request DELETE /categories/:id */
-function getTeamNumberPromise (){
+function getParticipantsPromise (){
 	return Participant.findAll({
+		raw: true,
+		attributes: {
+			exclude: ['participant_medical_certificate', 'participant_student_certificate', 'participant_id']
+		},
 		include: {
 			model: Team,
-			as: 'team',
+			as: 'participant_team',
 			attributes: ['team_id', 'team_name', 'team_valid'],
 			include: [
-					{
-						model: Category,
-						as: 'category',
-						attributes: ['category_id', 'category_label', 'category_price_regular', 'category_price_student']
-					}
-				]
+				{
+					model: Category,
+					as: 'team_category',
+					attributes: ['category_id', 'category_label', 'category_price_regular', 'category_price_student']
+				}
+			]
 		}});
+}
+
+function getCategoriesPromise (){
+	return Category.findAll({
+		raw: true,
+		attributes: ['category_id', 'category_label', 'category_price_regular', 'category_price_student']
+	});
+}
+
+function getTeamsPromise (){
+	return Team.findAll({
+		raw: true,
+		attributes: ['team_id', 'team_valid', 'team_category_id']
+	});
 }
 
 function getSQLJointureToExportTheWholeDatabase (){
@@ -46,5 +64,8 @@ function getSQLJointureToExportTheWholeDatabase (){
 };
 
 module.exports = {
-	getSQLJointureToExportTheWholeDatabase: getSQLJointureToExportTheWholeDatabase
+	getSQLJointureToExportTheWholeDatabase: getSQLJointureToExportTheWholeDatabase,
+	getCategoriesPromise: getCategoriesPromise,
+	getParticipantsPromise:getParticipantsPromise,
+	getTeamsPromise: getTeamsPromise
 };
