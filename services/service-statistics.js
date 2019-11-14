@@ -43,7 +43,8 @@ function getParticipantsPromise (){
 function getCategoriesPromise (){
 	return Category.findAll({
 		raw: true,
-		attributes: ['category_id', 'category_label', 'category_price_regular', 'category_price_student']
+		attributes: ['category_id', 'category_label', 'category_price_regular', 'category_price_student'],
+		order:[['category_label','DESC']]
 	});
 }
 
