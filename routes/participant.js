@@ -423,13 +423,9 @@ router.get('/student-certificate-file/:id', authenticationUser, function(req, re
  */
 router.put('/student-certificate/:id', authenticationUser, function(req, res, next) {
 	const isUserScope = req.user.scope == config_authentication["user-jwt-scope"];
-	console.log(1)
 	const isAdminScope = req.user.scope == config_authentication["admin-jwt-scope"];
-    console.log(2)
     const request = service_participant.checkRequestPutParticipantCertificateStudent(req, res, next);
-    console.log(3)
     var databaseParameters = service_participant.getDatabaseParameterPutParticipantCertificateStudent(request.params, request.query, request.body);
-    console.log(4);
 
     // STEP 1 - Retrieve the participant to update
 	Participant.findOne({ where: { participant_id: request.params.id} })
@@ -438,17 +434,13 @@ router.put('/student-certificate/:id', authenticationUser, function(req, res, ne
 			if (!participant) {
 				next(apiErrors.PARTICIPANT_NOT_FOUND, req, res);
 			} else {
-                console.log(5)
                 // STEP 3 - Check if the participant can be update by the user or not
 				if (isAdminScope || (isUserScope && participant.get("participant_team_id") == req.user.team.team_id)) {
 					participant.update(databaseParameters)
 						.then(participant2 => {
-                            console.log(6)
                             res.status(204).end();
 						})
 						.catch( err =>{
-                            console.log(7)
-                            console.log(err);
                             next(service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT, err), req, res);
 						});
 				} else {

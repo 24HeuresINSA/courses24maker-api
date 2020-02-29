@@ -99,6 +99,7 @@ router.post('/login', function(req, res, next) {
  * @apiParam (Body) {String} team_manager.participant_name ``Mandatory`` The name of the manager of the team to create
  * @apiParam (Body) {String} team_manager.participant_surname ``Mandatory`` The surname of the manager of the team to create
  * @apiParam (Body) {Date} team_manager.participant_birthdate ``Mandatory`` The birthdate of the manager of the team to create
+ * @apiParam (Body) {Number} participant.participant_student If the participant is a student (1) or not (0)
  * @apiParam (Body) {String} team_manager.participant_telephone ``Mandatory`` The telephone of the manager of the team to create
  * @apiParam (Body) {String} team_manager.participant_email ``Mandatory`` The email of the manager of the team to create
  * @apiUse GenericAuthenticationError
