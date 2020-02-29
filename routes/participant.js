@@ -316,6 +316,7 @@ router.put('/medical-certificate/:id', authenticationUser, function(req, res, ne
 							res.status(204).end();
 						})
 						.catch( err =>{
+							console.log(err);
 							next(service_errors.InternalErrorObject(apiErrors.PARTICIPANT_ERROR_INTERNAL_PUT_PARTICIPANT, err), req, res);
 						});
 				} else {
